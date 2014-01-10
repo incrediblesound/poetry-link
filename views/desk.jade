@@ -1,0 +1,20 @@
+extends layout
+
+block content
+  h1= title
+  div.poemForm
+
+    form( method='post', action='/create' )
+      
+      div
+        span.label Author:
+        input(type='text', class='txt' name='authorName')
+      div 
+        span.label Title:
+        input(type='text', class='txt' name='poemTitle')
+      div
+        span.label Poem:
+        textarea(name='poemtext')
+      div#addPoem
+         input(type='submit', value='save')
+  p= message

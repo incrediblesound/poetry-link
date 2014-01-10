@@ -1,0 +1,20 @@
+extends layout
+
+block content
+  h1= title
+  div.navbar
+    ul.navigation
+      li#home
+        a(class = "active" href = "/") Home
+      li#browse Browse Poems
+      li#authHome 
+        a(href = '/desk') Writer's Desk
+  div.poetry
+    - each poem in poems
+      div.poem_d
+        h2= poem.title
+        - var lines = poem.content.split('\r\n')
+        - for(i=0;i<lines.length;i++)
+          p.line= lines[i]
+        p.author <strong>Written by:</strong> 
+          = poem.author
