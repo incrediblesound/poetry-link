@@ -1,0 +1,1 @@
+Poetry link aims to be an archive of user created and classic poetry. The special feature will be the ability for the user to create a new poem from a line taken from an existing poem in the database. A user browsing poetry on the site can simply click on a line and start a new poem with that line. This combines online collaborative work with East Asian social poetry games.
