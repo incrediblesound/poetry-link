@@ -5,10 +5,14 @@ block content
   div.navbar
     ul.navigation
       li#home
-        a(class = "active" href = "/") Home
+        a(class = 'active' href = '/') Home
       li#browse Browse Poems
       li#authHome 
         a(href = '/desk') Writer's Desk
+      form(method='post', action='/search')
+        li#search
+          input(type='text' name='searchQuery')
+          input(type='submit' value='search') 
   div.poetry
     - each poem in poems
       div.poem_d

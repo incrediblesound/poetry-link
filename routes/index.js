@@ -34,8 +34,17 @@ exports.create  = function ( req, res ) {
 			res.redirect( '/desk' )
 			})
 	}
+exports.search = function ( req, res ) {
+  var query = req.body.searchQuery;
+  poem.find({title: query}).exec(function (err, poem){
+    res.render('index', {
+      title: 'Poetry Link',
+      poems: poem
+    });
+  });
+}
 
 exports.author = function(req, res){
 	
 }
-//callbacks can be nested indifinitely such that the res.render method has access to all the variables hoobly!!!
+//callbacks can be nested indifiniely such that the res.render method has access to all the variables hoobly!!!
