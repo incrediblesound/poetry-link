@@ -5,13 +5,14 @@
  var mongoose = require ( 'mongoose' );
  var poem = mongoose.model ( 'poem' );
  var pLink = mongoose.model ( 'pLink' );
- var author = mongoose.model ('author' );
+ var Author = mongoose.model ('Author' );
 
 exports.index = function(req, res){
   poem.find( function(err, poems, count){
 	pLink.find( function (err, links, count){
 	  res.render('index', { 
   	    title: 'Poetry Link',
+        user: req.user,
   	    poems: poems,
   	    links: links 
     });
@@ -19,19 +20,38 @@ exports.index = function(req, res){
 });
 }
 
+exports.register = function(req, res) {
+  res.render('register', {});
+}
+
+exports.postRegister = function(req, res) {
+  new Author({
+    fullName: req.body.authorName,
+    username: req.body.userName,
+    password: req.body.password,
+    favAuthors: req.body.favorites.split(","),
+    bio: req.body.bio
+  }).save( function( err, Author, count) {
+    res.redirect( 'desk' + req.user );
+  })
+}
+
 exports.desk = function(req, res){
-	res.render('desk',{
+	res.render('desk', {
+    user: req.user,
 		title: 'Writers Desk'
 	});
 };
 exports.create  = function ( req, res ) {
 	new poem({
-		author : req.body.authorName,
+    user: req.user,
+		author : req.user.fullName,
 		title : req.body.poemTitle,
 		content : req.body.poemtext,
-		created : Date.now()
+		created : Date.now(),
+    tags : req.body.Tags.split(",")
 		}).save( function( err, poem, count) {
-			res.redirect( '/desk' )
+			res.redirect( '/desk' );
 			})
 	}
 exports.search = function ( req, res ) {
@@ -45,7 +65,6 @@ exports.search = function ( req, res ) {
     }
     var query = req.body.searchQuery.toLowerCase();
     var matches = match(query, titles);
-    console.log(matches);
     for(i=0;i<matches.length;i++){
       for(k=0;k<poems.length;k++){
         if(poems[k].title === matches[i]){

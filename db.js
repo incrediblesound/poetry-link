@@ -16,17 +16,21 @@ var poemLink = new Schema({
 	hostPoem: String,
 	guestPoems: Array,
 	hostLine: Number,
-	content: String
+	content: String,
+	tags: Array
 })
 
 var pLink = mongoose.model('pLink', poemLink);
 
 var Author = new Schema({
+	fullName: String,
 	username: String,
 	password: String,
-	poems: Array
-})
+	poems: Array,
+	favAuthors: Array,
+	bio: String
+});
 
-var author = mongoose.model('author', Author);
+var Author = mongoose.model('Author', Author);
 
 mongoose.connect('mongodb://localhost/poetry');

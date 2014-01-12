@@ -5,12 +5,12 @@
 require('./db');
 var express = require( 'express' );
 var routes = require( './routes' );
-var user = require( './routes/user' );
 var http = require( 'http' );
 var path = require( 'path' );
 var passport = require( 'passport' );
-var LocalStrategy = require( 'passport-local' ).Strategy;
-
+var LocalStrategy = require( 'passport-local' ).Strategy
+var mongoose = require('mongoose');
+var Author = mongoose.model ('Author' );
 var app = express();
 
 // all environments
@@ -35,18 +35,41 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-// passport config
-//var Account = require('./models/account');
-//passport.use(new LocalStrategy(Account.authenticate()));
-//passport.serializeUser(Account.serializeUser());
-//passport.deserializeUser(Account.deserializeUser());
+passport.use(new LocalStrategy(
+	function(username,password,done) {
+		Author.findOne({ username: username }, function(err,user){
+			if(err) { return done(err); }
+			if(!user) {
+				return done(null, false, { message: 'incorrect username' });
+			}
+			if(password !== user.password) {
+				return done(null, false, { message: 'incorrect password' });
+			}
+			return done(null, user);
+		});
+	}
+));
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  Author.findById(id, function(err, user) {
+    done(err, user);
+  });
+});
 
 app.get('/', routes.index);
-//app.post('/create', routes.create)
-app.get('/users', user.list);
-app.get('/desk', routes.desk)
-app.post('/create', routes.create)
-app.post('/search', routes.search)
+app.get('/desk', routes.desk);
+app.post('/create', routes.create);
+app.post('/search', routes.search);
+app.get('/register', routes.register);
+app.post('/newauthor', routes.postRegister);
+app.post('/login', passport.authenticate('local'),
+function(req, res) {
+  res.redirect('/desk');
+});
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

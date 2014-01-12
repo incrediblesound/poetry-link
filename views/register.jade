@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  h1 Welcome New Author!
+
+  div.registerForm
+
+    form(method='post', action='/newauthor')
+      div
+        span.label Full name:
+        input(type='text', class='txt' name='authorName')
+      div 
+        span.label User name:
+        input(type='text', class='txt' name='userName')
+      div
+        span.label Password:
+        input(type='text', name='password')
+      div
+        span.label Favorite poets \(separated by commas\):
+        input(type='text', name='favorites')
+      div
+        span.label Short bio:
+        textarea(name='bio')
+      div#addPoem
+         input(type='submit', value='save') 
