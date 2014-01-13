@@ -44,6 +44,10 @@ h1 {
 .author {
 	text-align: center;
 	}
-li {
+form {
 	display: inline;
+}
+
+div {
+	margin-bottom: 4px;
 }

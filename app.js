@@ -66,6 +66,7 @@ app.post('/create', routes.create);
 app.post('/search', routes.search);
 app.get('/register', routes.register);
 app.post('/newauthor', routes.postRegister);
+app.get('/logout', routes.logout);
 app.post('/login', passport.authenticate('local'),
 function(req, res) {
   res.redirect('/desk');

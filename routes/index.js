@@ -37,23 +37,35 @@ exports.postRegister = function(req, res) {
 }
 
 exports.desk = function(req, res){
+  if(!req.user) {
+    res.redirect('/');
+  };
 	res.render('desk', {
     user: req.user,
 		title: 'Writers Desk'
 	});
 };
+
 exports.create  = function ( req, res ) {
 	new poem({
-    user: req.user,
 		author : req.user.fullName,
 		title : req.body.poemTitle,
 		content : req.body.poemtext,
 		created : Date.now(),
     tags : req.body.Tags.split(",")
-		}).save( function( err, poem, count) {
-			res.redirect( '/desk' );
-			})
+		}).save(),
+  req.user.update({$push: {poems: req.body.poemTitle}}, function(err, count, raw){
+    if(err) return handleError(err);
+    res.redirect('/desk');
+  })
 	}
+
+exports.logout = function (req,res) {
+  req.logout();
+  res.redirect('/');
+};
+
+//search engine functions
 exports.search = function ( req, res ) {
   poem.find( function (err, poems){
     var i;
@@ -77,10 +89,6 @@ exports.search = function ( req, res ) {
     poems: results
     })
   });
-}
-
-exports.author = function(req, res){
-	
 }
 
 var check = function( quer, title ) {
@@ -113,7 +121,7 @@ var match = function ( string, array ) {
       }
     }   
     else {
-      if(check( string, array[i].toLowerCase())) {
+      if(check( string, array[i].toLowerCase() )) {
         results.push(array[i]);
       }
     }

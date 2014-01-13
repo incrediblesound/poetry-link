@@ -24,7 +24,7 @@ var pLink = mongoose.model('pLink', poemLink);
 
 var Author = new Schema({
 	fullName: String,
-	username: String,
+	username: { type: String, index: {unique: true} },
 	password: String,
 	poems: Array,
 	favAuthors: Array,

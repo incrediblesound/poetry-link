@@ -2,20 +2,28 @@ extends layout
 
 block content
   h1= title
+  div.navbar
+    ul.navigation
+      li#home
+        a(href = '/') HOME
   h2= user.fullName
+  h3 Poems in your library:
+  div#poemlist
+    -var poems = user.poems
+    -for(i=0;i<poems.length;i++)
+      p= poems[i]
+  h3 Write something new!
   div.poemForm
-
-    form( method='post', action='/create' )
-      
-      div
-        span.label Author:
-        input(type='text', class='txt' name='authorName')
+    form(method='post', action='/create')
       div 
         span.label Title:
-        input(type='text', class='txt' name='poemTitle')
+        input(type='text', class='txt', name='poemTitle')
+      div
+        span.label Tags:
+        input(type='text', class='txt', name='Tags')
       div
         span.label Poem:
-        textarea(name='poemtext')
+        textarea(name='poemtext' rows=30, cols=30)
       div#addPoem
          input(type='submit', value='save')
   p= message
