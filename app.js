@@ -67,6 +67,8 @@ app.post('/search', routes.search);
 app.get('/register', routes.register);
 app.get('/authors/:usrname', routes.authors);
 app.get('/poems/:ttle', routes.poems);
+app.post('/link', routes.linker)
+app.post('/savelink', routes.savelink)
 app.post('/newauthor', routes.postRegister);
 app.get('/logout', routes.logout);
 app.post('/login', passport.authenticate('local'),

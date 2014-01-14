@@ -1,0 +1,12 @@
+extends layout
+
+block content
+
+h1= author.fullname
+
+h2 Bio
+p= author.bio
+
+h2 Poems
+- each poem in author.poems
+  p= poem

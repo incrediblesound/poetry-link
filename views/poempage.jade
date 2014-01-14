@@ -18,5 +18,22 @@ block content
 
   p.author <strong>Written by: </strong>
     = poem.author
+  h3 Create a link
+  form(method='post' action='/link')
+    span.label Choose a line:
+    select(name='lineselect')
+      -var body = poem.content
+      -for(i=0;i<body.length;i++)
+        option= i+1
+    span.label Opening line:
+    input(type='radio' name='position' value='first')
+    span.label Closing line:
+    input(type='radio' name='position' value='last')
+    input(type='hidden' name='source' value='#{poem.title}')
+    input(type='hidden' name='username' value='#{poem.authorUsr}')
+    input(type='hidden' name='author' value='#{poem.author}')
+    input(type='hidden' name='content' value='#{poem.content}')
+    input(type='submit' value='BEGIN')
+
   
   

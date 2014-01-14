@@ -1,6 +1,13 @@
 extends layout
 
 block content
+  div#login
+    form(method='post' action='/login')
+      span.label Username:
+      input(type='text' name='username')
+      span.label Password:
+      input(type='password' name='password')
+      input(type='submit' value='login')
   h1= title
   div.navbar
     ul.navigation
@@ -14,19 +21,15 @@ block content
       li#logout
         a(href = '/logout') Log Out
       li#search
-        form(method='post', action='/search')
+        form(method='post' action='/search')
           input(type='text' name='searchQuery')
           input(type='submit' value='search')
-      li#login
-        form(method='post', action='/login')
-          input(type='text' name='username' value='username')
-          input(type='text' name='password' value='password')
-          input(type='submit' value='login')
   div.poems
     h2 Recent Poems
     - each poem in poems
       a(href='/poems/#{poem.title}') 
         = poem.title
+        <br>
   div.authors
     h2 Featured Authors
     - each author in authors

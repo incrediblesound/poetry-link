@@ -60,11 +60,21 @@ div {
 	border-width: 1px;
 	background-color: white;
 	color: black;
-	float: left;
+	position: absolute;
+	left: 0;
 }
 .poembody {
 	margin-left: 8px;
 }
 .joined {
 	text-align: center;
+}
+#login {
+	padding: 2px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	border-style: solid;
+	border-width: 1px;
+	float: right;
 }

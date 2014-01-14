@@ -63,9 +63,10 @@ exports.poems = function( req, res ) {
   })
 };
 
-exports.create  = function ( req, res ) {
+exports.create = function ( req, res ) {
 	new poem({
 		author : req.user.fullName,
+    authorUsr : req.user.username,
 		title : req.body.poemTitle,
 		content : req.body.poemtext.split('\r\n'),
 		created : Date.now(),
@@ -77,9 +78,65 @@ exports.create  = function ( req, res ) {
   })
 	}
 
+exports.savelink = function (req, res) {
+  var Body = [];
+  var line = req.body.line;
+  var New = req.body.poemtext.split('\r\n');
+  if(req.body.position === 'first') {
+    Body.push(line);
+    for(i=0;i<New.length;i++){
+      Body.push(New[i]);
+    }
+  } else {
+    for(i=0;i<New.length;i++){
+      Body.push(New[i]);
+    }
+    Body.push(line);
+  }
+  console.log(Body);
+  new poem({
+    author : req.user.fullName,
+    authorUsr : req.user.username,
+    title : req.body.poemTitle,
+    content : Body,
+    created : Date.now(),
+    tags : req.body.Tags.split(","),
+    }).save(function (err, poem) {
+      pLink.update({_id: req.body.ID}, {
+        guestID: poem._id 
+      }, function (err, count, raw){
+        if(err) return res.json(err);
+        res.render('desk', {user:req.user, title:'Writers Desk'});
+      })
+    })
+};
+
 exports.logout = function (req,res) {
   req.logout();
   res.redirect('/');
+};
+
+exports.linker = function (req,res) {
+  var line = req.body.lineselect-1;
+  var Body = req.body.content.split(',');
+  new pLink({
+    hostPoem : req.body.source,
+    hostAuthor : req.body.author,
+    hostUsr : req.body.username,
+    guestpoem : null,
+    hostLine : req.body.lineselect,
+    position : req.body.position,
+    content : Body[line]
+  }).save(function (err, link) {
+    if(err) {
+      res.json(err);
+    }
+    else {
+      res.render('newlink', {
+        link: link
+      })
+    };
+  })
 };
 
 //search engine functions
@@ -101,7 +158,7 @@ exports.search = function ( req, res ) {
         }
       }
     };
-  res.render('index', {
+  res.render('results', {
     title: 'Poetry Link',
     poems: results
     })

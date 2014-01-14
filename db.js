@@ -5,19 +5,24 @@ var Schema = mongoose.Schema;
 
 var Poem = new Schema({
     author: String,
+    authorUsr: String,
     title: String,
     content: Array,
-    created: Date
+    created: Date,
+    tags: Array
 })
 
 var poem = mongoose.model('poem', Poem);
 
 var poemLink = new Schema({
 	hostPoem: String,
-	guestPoems: Array,
+	hostAuthor: String,
+	hostUsr: String,
+	guestPoem: String,
+	guestID: String,
 	hostLine: Number,
-	content: String,
-	tags: Array
+	position: String,
+	content: String
 })
 
 var pLink = mongoose.model('pLink', poemLink);

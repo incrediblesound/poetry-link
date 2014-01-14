@@ -1,0 +1,15 @@
+extends layout
+
+block content
+
+  h1 Poetry Link
+  div.navbar
+  ul.navigation
+    li#home
+      a(href = '/') HOME 
+
+  h2 Search Results
+
+  -each poem in poems
+    p <strong>#{poem.title}</strong> By: #{poem.author} 
+      a(href='/poems/#{poem.title}') Read
