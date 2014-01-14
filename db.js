@@ -6,7 +6,7 @@ var Schema = mongoose.Schema;
 var Poem = new Schema({
     author: String,
     title: String,
-    content: String,
+    content: Array,
     created: Date
 })
 
@@ -28,6 +28,7 @@ var Author = new Schema({
 	password: String,
 	poems: Array,
 	favAuthors: Array,
+	joined: Date,
 	bio: String
 });
 

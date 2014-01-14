@@ -1,0 +1,19 @@
+extends layout
+
+block content
+
+  h1= author.fullName
+  div.navbar
+    ul.navigation
+      li#home
+        a(href = '/') HOME
+  h2 Bio
+  p= author.bio
+
+  h2 Poems
+  - each poem in author.poems
+    a(href='/poems/#{poem}')
+      p= poem
+
+  p.joined Joined: 
+    = author.joined

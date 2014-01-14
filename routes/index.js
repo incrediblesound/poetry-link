@@ -9,12 +9,12 @@
 
 exports.index = function(req, res){
   poem.find( function(err, poems, count){
-	pLink.find( function (err, links, count){
+	Author.find( function (err, authors, count){
 	  res.render('index', { 
   	    title: 'Poetry Link',
         user: req.user,
   	    poems: poems,
-  	    links: links 
+  	    authors: authors 
     });
   });
 });
@@ -30,15 +30,16 @@ exports.postRegister = function(req, res) {
     username: req.body.userName,
     password: req.body.password,
     favAuthors: req.body.favorites.split(","),
+    joined: Date.now(),
     bio: req.body.bio
   }).save( function( err, Author, count) {
-    res.redirect( 'desk' + req.user );
+    res.redirect( 'desk' );
   })
 }
 
 exports.desk = function(req, res){
   if(!req.user) {
-    res.redirect('/');
+    res.redirect('/login');
   };
 	res.render('desk', {
     user: req.user,
@@ -46,13 +47,29 @@ exports.desk = function(req, res){
 	});
 };
 
+exports.authors = function( req, res ) {
+  Author.findOne({username: req.params.usrname}, function(err, author, count) {
+    res.render('authorpage', {
+      author: author
+    })
+  })
+};
+
+exports.poems = function( req, res ) {
+  poem.findOne({title: req.params.ttle}, function(err, poem, count) {
+    res.render('poempage', {
+      poem: poem
+    })
+  })
+};
+
 exports.create  = function ( req, res ) {
 	new poem({
 		author : req.user.fullName,
 		title : req.body.poemTitle,
-		content : req.body.poemtext,
+		content : req.body.poemtext.split('\r\n'),
 		created : Date.now(),
-    tags : req.body.Tags.split(",")
+    tags : req.body.Tags.split(","),
 		}).save(),
   req.user.update({$push: {poems: req.body.poemTitle}}, function(err, count, raw){
     if(err) return handleError(err);

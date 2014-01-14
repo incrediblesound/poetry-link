@@ -22,12 +22,13 @@ block content
           input(type='text' name='username' value='username')
           input(type='text' name='password' value='password')
           input(type='submit' value='login')
-  div.poetry
+  div.poems
+    h2 Recent Poems
     - each poem in poems
-      div.poem_d
-        h2= poem.title
-        - var lines = poem.content.split('\r\n')
-        - for(i=0;i<lines.length;i++)
-          p.line= lines[i]
-        p.author <strong>Written by:</strong> 
-          = poem.author
+      a(href='/poems/#{poem.title}') 
+        = poem.title
+  div.authors
+    h2 Featured Authors
+    - each author in authors
+      a(href='/authors/#{author.username}')
+        = author.fullName

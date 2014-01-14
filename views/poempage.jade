@@ -1,0 +1,22 @@
+extends layout
+
+block content
+
+  h1 Poetry Link
+  div.navbar
+    ul.navigation
+      li#home
+        a(href = '/') HOME  
+  h2= poem.title
+  
+  div.poembody
+    - var body = poem.content
+    - for(i=0;i<body.length;i++)
+      if((i+1)%5 === 0)
+        div.counter= i+1
+      p= body[i]
+
+  p.author <strong>Written by: </strong>
+    = poem.author
+  
+  
