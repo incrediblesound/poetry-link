@@ -6,6 +6,7 @@
  var poem = mongoose.model ( 'poem' );
  var pLink = mongoose.model ( 'pLink' );
  var Author = mongoose.model ('Author' );
+ var passport = require( 'passport' );
 
 exports.index = function(req, res){
   poem.find( function(err, poems, count){
@@ -32,10 +33,9 @@ exports.postRegister = function(req, res) {
     favAuthors: req.body.favorites.split(","),
     joined: Date.now(),
     bio: req.body.bio
-  }).save( function( err, Author, count) {
-    res.redirect( 'desk' );
-  })
-}
+  }).save()
+  res.render('/');
+};
 
 exports.desk = function(req, res){
   if(!req.user) {
@@ -43,7 +43,6 @@ exports.desk = function(req, res){
   };
 	res.render('desk', {
     user: req.user,
-		title: 'Writers Desk'
 	});
 };
 
@@ -71,29 +70,19 @@ exports.create = function ( req, res ) {
 		content : req.body.poemtext.split('\r\n'),
 		created : Date.now(),
     tags : req.body.Tags.split(","),
-		}).save(),
-  req.user.update({$push: {poems: req.body.poemTitle}}, function(err, count, raw){
-    if(err) return handleError(err);
-    res.redirect('/desk');
-  })
-	}
+		}).save(function (err, poem, count) {
+              req.user.update({$push: {poems: poem._id}}, 
+                function(err, count, raw){
+                res.redirect('/desk');
+                }
+              )
+            })
+	};
 
 exports.savelink = function (req, res) {
-  var Body = [];
   var line = req.body.line;
   var New = req.body.poemtext.split('\r\n');
-  if(req.body.position === 'first') {
-    Body.push(line);
-    for(i=0;i<New.length;i++){
-      Body.push(New[i]);
-    }
-  } else {
-    for(i=0;i<New.length;i++){
-      Body.push(New[i]);
-    }
-    Body.push(line);
-  }
-  console.log(Body);
+  Body = makeBody(req.body.position,line,New);
   new poem({
     author : req.user.fullName,
     authorUsr : req.user.username,
@@ -101,13 +90,14 @@ exports.savelink = function (req, res) {
     content : Body,
     created : Date.now(),
     tags : req.body.Tags.split(","),
-    }).save(function (err, poem) {
-      pLink.update({_id: req.body.ID}, {
-        guestID: poem._id 
-      }, function (err, count, raw){
-        if(err) return res.json(err);
-        res.render('desk', {user:req.user, title:'Writers Desk'});
-      })
+  }).save(function (err, poem, count) {
+      req.user.update({$push: { poems: poem._id } });
+      pLink.update( {_id: req.body.ID}, {guestID: poem._id}, 
+        function (err, count, raw) {
+          res.render('desk', {
+          user: req.user
+          })
+        })
     })
 };
 
@@ -201,5 +191,21 @@ var match = function ( string, array ) {
     }
   }
   return results;
+};
+
+var makeBody = function(position,line,New){
+  x = [];
+  if(position === 'first') {
+    x.push(line);
+    for(i=0;i<New.length;i++){
+      x.push(New[i]);
+    }
+  } else {
+    for(i=0;i<New.length;i++){
+      x.push(New[i]);
+    }
+    x.push(line);
+  }
+  return x;
 };
 //callbacks can be nested indifiniely such that the res.render method has access to all the variables hoobly!!!

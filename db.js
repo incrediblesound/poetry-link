@@ -16,11 +16,12 @@ var poem = mongoose.model('poem', Poem);
 
 var poemLink = new Schema({
 	hostPoem: String,
+	hostID: String,
 	hostAuthor: String,
 	hostUsr: String,
+	hostLine: Number,
 	guestPoem: String,
 	guestID: String,
-	hostLine: Number,
 	position: String,
 	content: String
 })
@@ -31,7 +32,7 @@ var Author = new Schema({
 	fullName: String,
 	username: { type: String, index: {unique: true} },
 	password: String,
-	poems: Array,
+	poems: {title: String, ID: String},
 	favAuthors: Array,
 	joined: Date,
 	bio: String

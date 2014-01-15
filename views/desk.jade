@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  h1= title
+  h1 Writer's Desk
   div.navbar
     ul.navigation
       li#home
@@ -23,7 +23,6 @@ block content
         input(type='text', class='txt', name='Tags')
       div
         span.label Poem:
-        textarea(name='poemtext' rows=30, cols=30)
+        textarea(name='poemtext' rows="30", cols="30")
       div#addPoem
          input(type='submit', value='save')
-  p= message
