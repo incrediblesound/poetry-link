@@ -12,6 +12,8 @@ block content
   div.poembody
     - var body = poem.content
     - for(i=0;i<body.length;i++)
+      - if(link.position === "first" && i === 0 || link.position === "last" && i === body.length-1)
+        p.linkinfo Linked from #{link.hostPoem} by #{link.hostAuthor}
       if((i+1)%5 === 0)
         div.counter= i+1
       p= body[i]

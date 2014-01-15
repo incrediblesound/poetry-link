@@ -66,7 +66,7 @@ app.post('/create', routes.create);
 app.post('/search', routes.search);
 app.get('/register', routes.register);
 app.get('/authors/:usrname', routes.authors);
-app.get('/poems/:ttle', routes.poems);
+app.get('/poems/:id', routes.poems);
 app.post('/link', routes.linker)
 app.post('/savelink', routes.savelink)
 app.post('/newauthor', routes.postRegister);

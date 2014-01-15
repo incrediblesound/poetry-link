@@ -27,7 +27,7 @@ block content
   div.poems
     h2 Recent Poems
     - each poem in poems
-      a(href='/poems/#{poem.title}') 
+      a(href='/poems/#{poem._id}') 
         = poem.title
         <br>
   div.authors

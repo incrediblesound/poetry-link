@@ -32,7 +32,7 @@ var Author = new Schema({
 	fullName: String,
 	username: { type: String, index: {unique: true} },
 	password: String,
-	poems: {title: String, ID: String},
+	poems: Array,
 	favAuthors: Array,
 	joined: Date,
 	bio: String

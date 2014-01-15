@@ -38,12 +38,15 @@ exports.postRegister = function(req, res) {
 };
 
 exports.desk = function(req, res){
-  if(!req.user) {
-    res.redirect('/login');
-  };
-	res.render('desk', {
-    user: req.user,
-	});
+  Author.findOne({username: req.user.username}, function(err, author, count){
+    poem.find( function(err, poems, count){
+      res.render('desk', {
+        user: req.user,
+        author: author,
+        poems: poems
+        });
+    })
+  })
 };
 
 exports.authors = function( req, res ) {
@@ -55,9 +58,12 @@ exports.authors = function( req, res ) {
 };
 
 exports.poems = function( req, res ) {
-  poem.findOne({title: req.params.ttle}, function(err, poem, count) {
-    res.render('poempage', {
-      poem: poem
+  poem.findOne({_id: req.params.id}, function(err, poem, count) {
+    pLink.findOne({guestID: poem._id}, function(err, link, count){ 
+      res.render('poempage', {
+        poem: poem,
+        link: link
+      })
     })
   })
 };
@@ -91,7 +97,7 @@ exports.savelink = function (req, res) {
     created : Date.now(),
     tags : req.body.Tags.split(","),
   }).save(function (err, poem, count) {
-      req.user.update({$push: { poems: poem._id } });
+      req.user.update({$push: { poems: poem._id } }, function(err,count,raw){return});
       pLink.update( {_id: req.body.ID}, {guestID: poem._id}, 
         function (err, count, raw) {
           res.render('desk', {
