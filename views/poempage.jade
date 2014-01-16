@@ -6,17 +6,13 @@ block content
   div.navbar
     ul.navigation
       li#home
-        a(href = '/') HOME  
+        a(href = '/') HOME 
   h2= poem.title
-  
   div.poembody
-    - var body = poem.content
-    - for(i=0;i<body.length;i++)
-      - if(link.position === "first" && i === 0 || link.position === "last" && i === body.length-1)
-        p.linkinfo Linked from #{link.hostPoem} by #{link.hostAuthor}
-      if((i+1)%5 === 0)
-        div.counter= i+1
-      p= body[i]
+    - for(i=0;i<lines.length;i++)
+      - if((i+1)%5 === 0)
+          div.counter= i+1
+      p= lines[i].content
 
   p.author <strong>Written by: </strong>
     = poem.author
@@ -31,11 +27,11 @@ block content
     input(type='radio' name='position' value='first')
     span.label Closing line:
     input(type='radio' name='position' value='last')
-    input(type='hidden' name='source' value='#{poem.title}')
-    input(type='hidden' name='username' value='#{poem.authorUsr}')
-    input(type='hidden' name='author' value='#{poem.author}')
     input(type='hidden' name='content' value='#{poem.content}')
     input(type='submit' value='BEGIN')
 
-  
+//  div.lnkheader
+//    p View Links
+//    div.lnkview
+//      p The #{poem.link.position} line of this poem linked from:<br> #{link.hostPoem} by #{link.hostAuthor} 
   

@@ -4,7 +4,7 @@
  */
  var mongoose = require ( 'mongoose' );
  var poem = mongoose.model ( 'poem' );
- var pLink = mongoose.model ( 'pLink' );
+ var line = mongoose.model ( 'line' );
  var Author = mongoose.model ('Author' );
  var passport = require( 'passport' );
 
@@ -39,7 +39,9 @@ exports.postRegister = function(req, res) {
 
 exports.desk = function(req, res){
   Author.findOne({username: req.user.username}, function(err, author, count){
-    poem.find( function(err, poems, count){
+    var usrPoems = author.poems;
+    console.log(usrPoems);
+    poem.find({_id: { $in: usrPoems } }, function(err, poems, count){
       res.render('desk', {
         user: req.user,
         author: author,
@@ -57,13 +59,17 @@ exports.authors = function( req, res ) {
   })
 };
 
+//this is the page for displaying a single poem
 exports.poems = function( req, res ) {
   poem.findOne({_id: req.params.id}, function(err, poem, count) {
-    pLink.findOne({guestID: poem._id}, function(err, link, count){ 
+    //console.log(poem);
+    var Lines = poem.content;
+    line.find({ _id:{ $in: Lines } }, function(err, lines, count) {
+      //console.log(lines);
       res.render('poempage', {
         poem: poem,
-        link: link
-      })
+        lines: lines
+      });
     })
   })
 };
@@ -73,38 +79,68 @@ exports.create = function ( req, res ) {
 		author : req.user.fullName,
     authorUsr : req.user.username,
 		title : req.body.poemTitle,
-		content : req.body.poemtext.split('\r\n'),
 		created : Date.now(),
     tags : req.body.Tags.split(","),
-		}).save(function (err, poem, count) {
-              req.user.update({$push: {poems: poem._id}}, 
-                function(err, count, raw){
-                res.redirect('/desk');
-                }
-              )
+		}).save(function (err, thispoem, count) {
+              var lines = req.body.poemtext.split('\r\n');
+              console.log(lines);
+              for(i=0;i<lines.length;i++) {
+                new line({
+                  originID: thispoem._id,
+                  originTitle: thispoem.title,
+                  originUsr: req.user.username,
+                  originAuthor: req.user.fullName,
+                  originNum: i,
+                  content: lines[i]
+                  }).save(function (err, thisline, count) {
+                    poem.update( {_id: thispoem._id}, {$push: { content: thisline._id }}, function(err,count,raw){return;})
+                  });
+              };
+              req.user.update({$push: {poems: thispoem._id}}, function(err, count, raw) {
+                  res.render('desk', {
+                  user: req.user,
+                  poems: req.user.poems
+                  })
+              })
             })
 	};
 
 exports.savelink = function (req, res) {
-  var line = req.body.line;
   var New = req.body.poemtext.split('\r\n');
-  Body = makeBody(req.body.position,line,New);
+  var position = req.body.position;
+  var ID = req.body.ID;
   new poem({
     author : req.user.fullName,
     authorUsr : req.user.username,
     title : req.body.poemTitle,
-    content : Body,
     created : Date.now(),
     tags : req.body.Tags.split(","),
-  }).save(function (err, poem, count) {
-      req.user.update({$push: { poems: poem._id } }, function(err,count,raw){return});
-      pLink.update( {_id: req.body.ID}, {guestID: poem._id}, 
-        function (err, count, raw) {
-          res.render('desk', {
-          user: req.user
+  }).save(function (err, thispoem, count) {
+          var i;
+          if( position === 'first' ) {
+            poem.update( {_id: thispoem._id}, {$push: { content: ID }}, function(err,count,raw){return console.log("pushed first");})
+          };
+          var lines = req.body.poemtext.split('\r\n');
+              for(i=0;i<lines.length;i++) {
+                new line({
+                  originID: thispoem._id,
+                  originTitle: thispoem.title,
+                  originUsr: req.user.username,
+                  originAuthor: req.user.fullName,
+                  content: lines[i]
+                }).save(function (err, thisline, count) {
+                  poem.update( {_id: thispoem._id}, {$push: { content: thisline._id }}, function(err,count,raw){return;})
+                });
+              }
+            if( position === 'last' && i === lines.length ) {poem.update( {_id: thispoem._id}, {$push: { content: ID }}, function(err,count,raw){return console.log("pushed last")})};
+            line.update({_id: ID}, {$push: { links: thispoem._id }}, function(err,count,raw){return;})
+            req.user.update({$push: {poems: thispoem._id}}, function(err, count, raw) {
+                  res.render('desk', {
+                  user: req.user,
+                  poems: req.user.poems
+                  })
+              })
           })
-        })
-    })
 };
 
 exports.logout = function (req,res) {
@@ -113,25 +149,15 @@ exports.logout = function (req,res) {
 };
 
 exports.linker = function (req,res) {
-  var line = req.body.lineselect-1;
+  var Line = req.body.lineselect-1;
   var Body = req.body.content.split(',');
-  new pLink({
-    hostPoem : req.body.source,
-    hostAuthor : req.body.author,
-    hostUsr : req.body.username,
-    guestpoem : null,
-    hostLine : req.body.lineselect,
-    position : req.body.position,
-    content : Body[line]
-  }).save(function (err, link) {
-    if(err) {
-      res.json(err);
-    }
-    else {
-      res.render('newlink', {
-        link: link
-      })
-    };
+  var originLine = Body[Line];
+  var position = req.body.position;
+  line.findOne({_id: originLine}, function(err, line, count) {
+    res.render('newlink', {
+      link: line,
+      position: position
+    })
   })
 };
 
@@ -199,19 +225,21 @@ var match = function ( string, array ) {
   return results;
 };
 
-var makeBody = function(position,line,New){
-  x = [];
-  if(position === 'first') {
-    x.push(line);
-    for(i=0;i<New.length;i++){
-      x.push(New[i]);
+//find the three lines with the most links
+var topThreeLines = function(){
+var lines = line.find(function (err, lines) { return lines; })
+  var L = 0;
+  var one;
+  var two;
+  var three;
+  for(i=0;i<lines.length;i++) {
+    if(lines[i].links.length > L) {
+      L = lines[i].links.length;
+      two = one;
+      three = two;
+      one = lines[i]._id; 
     }
-  } else {
-    for(i=0;i<New.length;i++){
-      x.push(New[i]);
-    }
-    x.push(line);
   }
-  return x;
-};
+  return ({one: one, two: two, three: three});
+}
 //callbacks can be nested indifiniely such that the res.render method has access to all the variables hoobly!!!

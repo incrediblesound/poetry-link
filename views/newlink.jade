@@ -4,8 +4,8 @@ block content
 
   h1 Linking in Process
 
-  h2 Linking from #{link.hostPoem} by #{link.hostAuthor}
-  h3 "#{link.content}" will be your #{link.position} line
+  h2 Linking from #{link.originTitle} by #{link.originAuthor}
+  h3 "#{link.content}" will be your #{position} line
   div.poemForm
   form(method='post', action='/savelink')
     div 
@@ -18,7 +18,7 @@ block content
       span.label Poem:
       textarea(name='poemtext' rows="30", cols="30")
       input(type='hidden' name='line' value='#{link.content}')
-      input(type='hidden' name='position' value='#{link.position}')
+      input(type='hidden' name='position' value='#{position}')
       input(type='hidden' name='ID' value='#{link._id}')
     div#addPoem
        input(type='submit', value='SAVE')
