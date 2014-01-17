@@ -93,3 +93,11 @@ div {
 	border-width: 1px;
 	background-color: #FFB6C1;
 }
+
+.tag {
+	display: inline;
+}
+
+.poemList {
+	display: inline;
+}

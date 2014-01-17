@@ -33,8 +33,18 @@ exports.postRegister = function(req, res) {
     favAuthors: req.body.favorites.split(","),
     joined: Date.now(),
     bio: req.body.bio
-  }).save()
-  res.render('/');
+  }).save(function (err, user) {
+    if (err) {
+      res.redirect('index');
+    } else {
+      req.login(user, function (err) {
+        if (err) {
+          console.log(err)
+        }
+        res.redirect('desk');
+      })
+    };
+  })
 };
 
 exports.desk = function(req, res){
@@ -46,15 +56,20 @@ exports.desk = function(req, res){
         user: req.user,
         author: author,
         poems: poems
-        });
+      });
     })
   })
 };
 
+//this is the page that displays the info of a particular author
 exports.authors = function( req, res ) {
   Author.findOne({username: req.params.usrname}, function(err, author, count) {
-    res.render('authorpage', {
-      author: author
+    var usrPoems = author.poems;
+    poem.find({_id: { $in: usrPoems } }, function(err, poems, count) {
+      res.render('authorpage', {
+        author: author,
+        poems: poems
+      })
     })
   })
 };
@@ -97,10 +112,7 @@ exports.create = function ( req, res ) {
                   });
               };
               req.user.update({$push: {poems: thispoem._id}}, function(err, count, raw) {
-                  res.render('desk', {
-                  user: req.user,
-                  poems: req.user.poems
-                  })
+                  res.redirect('desk');
               })
             })
 	};

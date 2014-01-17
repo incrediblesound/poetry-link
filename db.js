@@ -16,7 +16,7 @@ var Poem = new Schema({
 var poem = mongoose.model('poem', Poem);
 
 var Line = new Schema({
-	origin: String,
+	originID: String,
 	originTitle: String,
 	originUsr: String,
 	originAuthor: String,
