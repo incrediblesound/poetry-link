@@ -24,11 +24,11 @@ block content
       -for(i=0;i<body.length;i++)
         option= i+1
     span.label Opening line:
-    input(type='radio' name='position' value='first')
+    input(type='radio' class='position' name='position' value='first')
     span.label Closing line:
-    input(type='radio' name='position' value='last')
+    input(type='radio' class='position' name='position' value='last')
     input(type='hidden' name='content' value='#{poem.content}')
-    input(type='submit' value='BEGIN')
+    input(type='submit' class='linksubmit' value='BEGIN')
 
 //  div.lnkheader
 //    p View Links

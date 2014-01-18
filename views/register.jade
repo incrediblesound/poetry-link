@@ -8,13 +8,13 @@ block content
     form(method='post', action='/newauthor')
       div
         span.label Full name:
-        input(type='text', class='txt' name='authorName')
+        input(type='text', class='txt' name='authorName' required)
       div 
         span.label User name:
-        input(type='text', class='txt' name='userName')
+        input(type='text', class='txt' name='userName' required)
       div
         span.label Password:
-        input(type='text', name='password')
+        input(type='password', class='pass' name='password' required)
       div
         span.label Favorite poets \(separated by commas\):
         input(type='text', name='favorites')
@@ -22,4 +22,4 @@ block content
         span.label Short bio:
         textarea(name='bio')
       div#addPoem
-         input(type='submit', value='save') 
+         input(type='submit', class='newauthor', value='save') 
