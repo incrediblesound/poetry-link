@@ -10,21 +10,25 @@ var Poem = new Schema({
     content: Array,
     created: Date,
     tags: Array,
-    linkPosition: String
+    linkedLines: Array,
+    linkID: {type: String, default: null},
+    linkPosition: {type: String, default: null}
 })
 
 var poem = mongoose.model('poem', Poem);
 
-var Line = new Schema({
+var LineLink = new Schema({
 	originID: String,
 	originTitle: String,
-	originUsr: String,
 	originAuthor: String,
+	originNum: Number,
 	content: String,
-	links: Array
+	guestAuthor: String,
+	guestTitle: String,
+	guestID: String
 })
 
-var line = mongoose.model('line', Line);
+var lineLink = mongoose.model('lineLink', LineLink);
 
 var Author = new Schema({
 	fullName: String,

@@ -3,50 +3,19 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
-.navigation {
-	text-align: left;
-	border-style: solid;
-	border-width: 1px;
-}
-
-.navigation li {
-	display: inline;
-	padding-bottom: 2px;
-	padding-top: 2px;
-	padding-left: 8px;
-	padding-right: 16px;
-	font-weight: bold;
-	cursor: pointer;
-}
-
-
-.active {
-	color: red;	
-}
-
 h1 {
-	padding-top: 20px;
-	padding-bottom: 24px;
+	padding-top: 4px;
+	padding-bottom: 4px;
 	text-align: center;
 	background-color: #9EFFF8;
 	border-width: 3px;
-	border-ratio: 4px;
+	border-radius: 12px;
 	color: black;
-	border-color: black;
 }
-.poem_d {
-	border-style: solid;
-	border-width: 1px;
-	padding: 8px;
-	margin: 4px;
-	}
-	
+
 .author {
 	text-align: center;
 	}
-form {
-	display: inline;
-}
 
 div {
 	margin-bottom: 4px;
@@ -64,9 +33,6 @@ div {
 	left: 0;
 }
 
-.joined {
-	text-align: center;
-}
 #login {
 	padding: 2px;
 	position: absolute;
@@ -75,13 +41,6 @@ div {
 	border-style: solid;
 	border-width: 1px;
 	float: right;
-}
-
-.linkinfo {
-	float: right;
-	width: 30%;
-	border-style: solid;
-	border-top-width: 1px;
 }
 
 .lnkheader {
@@ -99,5 +58,23 @@ div {
 }
 
 .poemList {
+	display: inline;
+}
+
+.title {
+	text-align: center;
+}
+.spacer {
+	margin-bottom: 24px;
+}
+#linkInfo {
+	cursor: pointer;
+}
+
+.linecounter, .linkbud {
+	margin-left: 8px;
+}
+
+.linkbud, .linkinfo, a {
 	display: inline;
 }

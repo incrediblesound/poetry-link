@@ -60,7 +60,8 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-app.get('/', routes.index);
+app.get('/', routes.title);
+app.get('/home', routes.index);
 app.get('/desk', routes.desk);
 app.post('/create', routes.create);
 app.post('/search', routes.search);

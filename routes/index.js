@@ -4,11 +4,15 @@
  */
  var mongoose = require ( 'mongoose' );
  var poem = mongoose.model ( 'poem' );
- var line = mongoose.model ( 'line' );
+ var lineLink = mongoose.model ( 'lineLink' );
  var Author = mongoose.model ('Author' );
  var passport = require( 'passport' );
 
-exports.index = function(req, res){
+exports.title = function(req, res) {
+  res.render('title');
+}
+
+exports.index = function(req, res) {
   poem.find( function(err, poems, count){
 	Author.find( function (err, authors, count){
 	  res.render('index', { 
@@ -48,6 +52,9 @@ exports.postRegister = function(req, res) {
 };
 
 exports.desk = function(req, res){
+  if(req.user === undefined) {
+    res.redirect('/register');
+  } else {
   Author.findOne({username: req.user.username}, function(err, author, count){
     var usrPoems = author.poems;
     console.log(usrPoems);
@@ -59,6 +66,7 @@ exports.desk = function(req, res){
       });
     })
   })
+}
 };
 
 //this is the page that displays the info of a particular author
@@ -76,86 +84,64 @@ exports.authors = function( req, res ) {
 
 //this is the page for displaying a single poem
 exports.poems = function( req, res ) {
-  poem.findOne({_id: req.params.id}, function(err, poem, count) {
-    //console.log(poem);
-    var Lines = poem.content;
-    line.find({ _id:{ $in: Lines } }, function(err, lines, count) {
-      //console.log(lines);
-      res.render('poempage', {
-        poem: poem,
-        lines: lines
-      });
-    })
+  poem.findOne({_id: req.params.id}, 
+    function(err, poem, count) {
+      lineLink.findOne({ _id:poem.linkID }, 
+        function(err, linkOne, count) {
+            lineLink.find({originID: poem._id}, function(err, links, count) {
+              console.log(links);
+              res.render('poempage', {
+                poem: poem,
+                link: linkOne,
+                links: links
+              })
+            })
+      })
   })
-};
+}
+
+
 
 exports.create = function ( req, res ) {
+  var lines = req.body.poemtext.split('\r\n');
+  console.log(lines);
 	new poem({
 		author : req.user.fullName,
     authorUsr : req.user.username,
 		title : req.body.poemTitle,
+    content : lines,
 		created : Date.now(),
     tags : req.body.Tags.split(","),
 		}).save(function (err, thispoem, count) {
-              var lines = req.body.poemtext.split('\r\n');
-              console.log(lines);
-              for(i=0;i<lines.length;i++) {
-                new line({
-                  originID: thispoem._id,
-                  originTitle: thispoem.title,
-                  originUsr: req.user.username,
-                  originAuthor: req.user.fullName,
-                  originNum: i,
-                  content: lines[i]
-                  }).save(function (err, thisline, count) {
-                    poem.update( {_id: thispoem._id}, {$push: { content: thisline._id }}, function(err,count,raw){return;})
-                  });
-              };
-              req.user.update({$push: {poems: thispoem._id}}, function(err, count, raw) {
-                  res.redirect('desk');
-              })
-            })
+        req.user.update({$push: {poems: thispoem._id}}, 
+          function(err, count, raw) {
+          res.redirect('desk');
+          }
+        )
+      })
 	};
 
 exports.savelink = function (req, res) { //this saves a new poem written with a line from another poem
   var lines = req.body.poemtext.split('\r\n'); //make array out of user written (new) poem
   var position = req.body.position; //save the position of the user borrowed line
-  var ID = req.body.ID; //save the _id of the user borrowed line
+  var ID = req.body.ID
   new poem({
-    author : req.user.fullName,       //create a new poem with no content
+    author : req.user.fullName,       
     authorUsr : req.user.username,
     title : req.body.poemTitle,
+    content : lines,
     created : Date.now(),
     tags : req.body.Tags.split(","),
+    linkID : ID,
+    linkPosition : position
   }).save(function (err, thispoem, count) {
-          var i;
-          if( position === 'first' ) { //if the borrowed line goes at the beginning of the new poem, push it first
-            poem.update( {_id: thispoem._id}, {$push: { content: ID }}, 
-              function(err,count,raw){return console.log("pushed first");}) 
-          };
-              for(i=0;i<lines.length;i++) { //for each new line, save a line and push it into poem.content
-                new line({
-                  originID: thispoem._id,
-                  originTitle: thispoem.title,
-                  originUsr: req.user.username,
-                  originAuthor: req.user.fullName,
-                  content: lines[i]
-                }).save(function (err, thisline, count) {
-                  poem.update( {_id: thispoem._id}, {$push: { content: thisline._id }},
-                    function(err,count,raw){return;})
-                });
-              }
-            if(position === 'last') { poem.update( {_id: thispoem._id}, {$push: { content: ID }}, //!!!this pushes the borrowed line, which should go at the end of the content array, to the BEGINNING of the content array...???
-              function(err,count,raw){return console.log("pushed last")})};
-            
-            line.update({_id: ID}, {$push: { links: thispoem._id }}, //push the _id of the newly saved poem onto the "links" property of the borrowed line
-              function(err,count,raw){return;})
-            
-            req.user.update({$push: {poems: thispoem._id}}, //update user document with _id of new poem 
-              function(err, count, raw) {
-                  res.redirect('desk'); // go home bitch!!!
-              })
-          })
+      lineLink.update({_id: thispoem.linkID}, {guestID: thispoem._id, guestAuthor: thispoem.author, guestTitle: thispoem.title },
+        function(err,count,raw){return;})
+      req.user.update({$push: {poems: thispoem._id}}, //update user document with _id of new poem 
+        function(err, count, raw) {
+          res.redirect('desk'); // go home bitch!!!
+      })
+    })
 };
 
 exports.logout = function (req,res) {
@@ -164,16 +150,30 @@ exports.logout = function (req,res) {
 };
 
 exports.linker = function (req,res) {
+  if(req.user === undefined) {
+    res.redirect('/register');
+  } else {
   var Line = req.body.lineselect-1;
   var Body = req.body.content.split(',');
-  var originLine = Body[Line];
+  var title = req.body.title;
+  var author = req.body.author;
+  var lineContent = Body[Line];
   var position = req.body.position;
-  line.findOne({_id: originLine}, function(err, line, count) {
+  var originID = req.body.ID
+  poem.update({_id: originID}, {$push: {linkedLines: Line }});
+  new lineLink({
+    originID: originID,
+    originTitle: title,
+    originAuthor: author,
+    originNum: Line,
+    content: lineContent
+  }).save(function(err, linelink, count) {
     res.render('newlink', {
-      link: line,
+      linelink: linelink,
       position: position
     })
   })
+}
 };
 
 //search engine functions

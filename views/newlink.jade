@@ -1,24 +1,28 @@
 extends layout
 
 block content
-
-  h1 Linking in Process
-
-  h2 Linking from #{link.originTitle} by #{link.originAuthor}
-  h3 "#{link.content}" will be your #{position} line
-  div.poemForm
-  form(method='post', action='/savelink')
-    div 
-      span.label Title:
-      input(type='text', class='txt', name='poemTitle')
-    div
-      span.label Tags:
-      input(type='text', class='txt', name='Tags')
-    div
-      span.label Poem:
-      textarea(name='poemtext' rows="30", cols="30")
-      input(type='hidden' name='line' value='#{link.content}')
-      input(type='hidden' name='position' value='#{position}')
-      input(type='hidden' name='ID' value='#{link._id}')
-    div#addPoem
-       input(type='submit', value='SAVE')
+  div.container
+    div.row
+      h1 Linking in Process
+    div.row
+      h2(style="text-align:center;") Linking from #{linelink.originTitle} by #{linelink.originAuthor}...
+    div.row
+      h4 "#{linelink.content}" will be your #{position} line.
+    div.row
+      h4
+        span(class="label label-primary") Now write something new!
+      div.spacer
+      form(method='post', action='/savelink')
+        div.form-group
+          label(for="title") Title:
+          input(type='text', id='title', name='poemTitle')
+        div.form-group
+          label(for="tags") Tags:
+          input(type='text', id='tags', name='Tags')
+        div.form-group
+          label(for="poem") Poem:
+          textarea(name='poemtext' id="poem" rows="30", cols="30")
+          input(type='hidden' name='line' value='#{linelink.content}')
+          input(type='hidden' name='position' value='#{position}')
+          input(type='hidden' name='ID' value='#{linelink._id}')
+          input(type='submit', class="btn btn-default" value='SAVE')

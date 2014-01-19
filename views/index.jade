@@ -1,38 +1,41 @@
 extends layout
 
 block content
-  div#login
-    form(method='post' action='/login')
-      span.label Username:
-      input(type='text' name='username')
-      span.label Password:
-      input(type='password' name='password')
-      input(type='submit' value='login')
-  h1= title
-  div.navbar
-    ul.navigation
-      li#home
-        a(class = 'active' href = '/') Browse Poems
-      li#links View Links
-      li#authHome 
-        a(href = '/desk') Author Home
-      li#register
-        a(href = '/register') Join the fun!
-      li#logout
-        a(href = '/logout') Log Out
-      li#search
-        form(method='post' action='/search')
-          input(type='text' name='searchQuery')
-          input(type='submit' value='search')
-  div.poems
-    h2 Recent Poems
-    - each poem in poems
-      a(href='/poems/#{poem._id}') 
-        = poem.title
-        <br>
-  div.authors
-    h2 Featured Authors
-    - each author in authors
-      a(href='/authors/#{author.username}')
-        = author.fullName
-        <br>
+  div.container
+    header.modal-header
+      div(class="navbar navbar-default navbar-fixed-top")
+        ul(class="nav navbar-nav")
+          li
+            a(href = '/') About
+          li
+            a(href = '/desk') Author Home
+          li
+            a(href = '/register') Join the fun!
+          li
+            a(href = '/logout') Log Out
+        form(method='post' class="navbar-form navbar-right" action='/login')
+          div.form-group
+            input(type='text' class="form-control" placeholder="username" name='username')
+          div.form-group
+            input(type='password' class="form-control" placeholder="password" name='password')
+          input(type='submit' class="btn btn-success" value='login')
+    div.row
+      div.col-md-4
+        h2
+          span(class="label label-info") Search for Poems
+        form(method='post' class="form-inline" action='/search' role="form")
+          div.form-group
+            input(type='text' class='form-control' name='searchQuery')
+          input(type='submit' class='btn btn-default' value='search')
+      div.col-md-4
+        h2 Recent Poems
+        - each poem in poems
+          a(href='/poems/#{poem._id}') 
+            = poem.title
+            <br>
+      div.col-md-4
+        h2 Featured Authors
+        - each author in authors
+          a(href='/authors/#{author.username}')
+            = author.fullName
+            <br>

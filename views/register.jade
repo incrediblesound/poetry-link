@@ -1,25 +1,32 @@
 extends layout
 
 block content
-  h1 Welcome New Author!
-
-  div.registerForm
-
-    form(method='post', action='/newauthor')
-      div
-        span.label Full name:
-        input(type='text', class='txt' name='authorName' required)
-      div 
-        span.label User name:
-        input(type='text', class='txt' name='userName' required)
-      div
-        span.label Password:
-        input(type='password', class='pass' name='password' required)
-      div
-        span.label Favorite poets \(separated by commas\):
-        input(type='text', name='favorites')
-      div
-        span.label Short bio:
-        textarea(name='bio')
-      div#addPoem
-         input(type='submit', class='newauthor', value='save') 
+  div.container
+    div(class="navbar navbar-default navbar-fixed-top")
+        ul(class="nav navbar-nav")
+          li
+            a(href="/home") HOME
+    div.row
+    div.center-block 
+      h1 Welcome New Author!
+    div.row
+    div.col-md-8
+      form(method='post', action='/newauthor')
+        div.form-group
+          label(for="name") Full name:
+          input(type='text', id="name" class='txt' name='authorName' required)
+        div.form-group 
+          label(for="user") User name:
+          input(type='text' id="user" class='txt' name='userName' required)
+        div.form-group
+          label(for="pass") Password:
+          input(type='password' id="pass" class='pass' name='password' required)
+        div.form-group
+          label(for="favorites") Favorite poets:
+          input(type='text' id="favorites" name='favorites')
+          p.help-block Separated by commas, no spaces
+        div.form-group
+          label(for='bio') Short bio:
+          textarea(id='bio' name='bio')
+        div#addPoem
+          input(type='submit', class='newauthor', value='save') 

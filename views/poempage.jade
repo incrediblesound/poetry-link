@@ -2,33 +2,87 @@ extends layout
 
 block content
 
-  h1 Poetry Link
-  div.navbar
-    ul.navigation
-      li#home
-        a(href = '/') HOME 
-  h2= poem.title
-  div.poembody
-    - for(i=0;i<lines.length;i++)
-      - if((i+1)%5 === 0)
-          div.counter= i+1
-      p= lines[i].content
-
-  p.author <strong>Written by: </strong>
-    = poem.author
-  h3 Create a link
-  form(method='post' action='/link')
-    span.label Choose a line:
-    select(name='lineselect')
-      -var body = poem.content
-      -for(i=0;i<body.length;i++)
-        option= i+1
-    span.label Opening line:
-    input(type='radio' class='position' name='position' value='first')
-    span.label Closing line:
-    input(type='radio' class='position' name='position' value='last')
-    input(type='hidden' name='content' value='#{poem.content}')
-    input(type='submit' class='linksubmit' value='BEGIN')
+  div.container
+    div(class="navbar navbar-default navbar-fixed-top")
+        ul(class="nav navbar-nav")
+          li
+            a(href="/home") HOME
+        ul(class="nav navbar-nav navbar-right")
+          li
+            a(href="/logout") Log Out
+    div.row
+    div.col-md-8
+      h2= poem.title
+      span(class="label label-info")<strong>Written by: </strong>
+        = poem.author
+      div.spacer
+      - var i;
+      - var l;
+      - var k = 0;
+      - for(i=0;i<poem.content.length;i++)
+        - if(poem.linkPosition === 'first' && i === 0)
+          - k += 1
+          p= link.content
+            span(class="label label-info linkbud") L
+              span(class="label label-info linkinfo") this line linked from 
+                a(href="/poems/#{link.originID}") #{link.originTitle} by #{link.originAuthor}
+        p= poem.content[i]
+          - if((k+1)%5 === 0)
+            span.badge(id="lineCounter")= i+1
+          - k += 1
+          - if(links !== null)
+            - if(links.originNum === i)
+              span(class="label label-info linkbud") L
+                span(class="label label-info linkinfo") 
+                  | this line used
+                  a(href="/poems/#{links.guestID}")
+                    | in #{links.guestTitle} by #{links.guestAuthor}
+            - if(links.length > 0)
+              - for(l=0;l<links.length;l++)
+                - if(links[l].originNum === i)
+                  span(class="label label-info linkbud") L
+                    span(class="label label-info linkinfo") 
+                      | this line used
+                      a(href="/poems/#{links[l].guestID}")
+                        | in #{links[l].guestTitle} by #{links[l].guestAuthor}
+      - if(poem.linkPosition === 'last')
+        p= link.content
+          - if((k+1)%5 === 0)
+            span.badge(style="margin-left:8px;")= i+1
+          span(class="label label-info linkbud") L
+              span(class="label label-info linkinfo") this line linked from 
+                a(href="/poems/#{link.originID}") #{link.originTitle} by #{link.originAuthor}
+      div.spacer
+      h4
+        span(class="label label-primary" id="linkInfo") Show Links
+          
+      
+    div.col-md-4      
+      h2 
+        span(class="label label-primary") Create a link
+      form(method='post' action='/link')
+        div.form-group
+          label(for="line") Choose a line from this poem:
+          select(name='lineselect' id="line")
+            -var body = poem.content
+            -for(i=0;i<body.length;i++)
+              option= i+1
+        h4
+          span(class="label label-info") Where will this line be in your poem?
+        div.form-group
+          label(for="position1") Opening line:
+          input(type='radio' class='position' id="position1" name='position' value='first')
+        div.form-group
+          label(for="position2") Closing line:
+          input(type='radio' class='position' id="position2" name='position' value='last')
+        div.form-group
+          input(type='hidden' name='content' value='#{poem.content}')
+          input(type='hidden' name='title' value='#{poem.title}')
+          input(type='hidden' name='author' value='#{poem.author}')
+          input(type='hidden' name='ID' value='#{poem._id}')
+          input(type='hidden' name='linkID' value='#{poem.linkID}')
+          input(type='hidden' name='linkPosition' value='#{poem.linkPosition}')
+        input(type='submit' class="btn btn-default" id='linksubmit' value='BEGIN')
 
 //  div.lnkheader
 //    p View Links
