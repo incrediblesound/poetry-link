@@ -12,6 +12,10 @@ exports.title = function(req, res) {
   res.render('title');
 }
 
+exports.about = function(req, res) {
+  res.render('about');
+}
+
 exports.index = function(req, res) {
   poem.find( function(err, poems, count){
 	Author.find( function (err, authors, count){

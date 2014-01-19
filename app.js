@@ -61,6 +61,7 @@ passport.deserializeUser(function(id, done) {
 });
 
 app.get('/', routes.title);
+app.get('/about', routes.about)
 app.get('/home', routes.index);
 app.get('/desk', routes.desk);
 app.post('/create', routes.create);
