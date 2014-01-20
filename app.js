@@ -64,6 +64,9 @@ app.get('/', routes.title);
 app.get('/about', routes.about)
 app.get('/home', routes.index);
 app.get('/desk', routes.desk);
+app.get('/stats', routes.stats)
+app.get('/manage', routes.manage);
+app.post('/delete', routes.Delete);
 app.post('/create', routes.create);
 app.post('/search', routes.search);
 app.get('/register', routes.register);

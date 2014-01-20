@@ -1,0 +1,53 @@
+extends layout
+
+block content
+
+  div.container
+    div(class="navbar navbar-default navbar-fixed-top")
+      ul(class="nav navbar-nav")
+        li
+          a(href="/home") HOME
+    div.row
+      h1 Poetry Link Rankings
+    div.spacer
+    div.row
+      div.col-md-6
+        h2 Most Linked-to Poems
+        div.spacer
+        ol
+          li= poemStats[0].poem.author
+            a(href="/poems/#{poemStats[0].poem._id}") : 
+              = poemStats[0].poem.title
+            span(class="label label-info sp") Number of links: 
+              =poemStats[0].score
+          div.spacer
+          li= poemStats[1].poem.author
+            a(href="/poems/#{poemStats[1].poem._id}") : 
+              = poemStats[1].poem.title
+            span(class="label label-info sp") Number of links: 
+                =poemStats[1].score
+          div.spacer
+          li= poemStats[2].poem.author
+            a(href="/poems/#{poemStats[2].poem._id}") : 
+              = poemStats[2].poem.title
+            span(class="label label-info sp") Number of links: 
+              =poemStats[2].score
+      div.col-md-6
+        h2 Most Productive Authors
+        div.spacer
+        ol
+          li= authorStats[0].author.fullName
+            a(href="/authors/#{authorStats[0].author.username}")  Visit Author Page
+            span(class="label label-info sp") Number of poems: 
+              =authorStats[0].score
+          div.spacer
+          li= authorStats[1].author.fullName
+            a(href="/authors/#{authorStats[1].author.username}")  Visit Author Page
+            span(class="label label-info sp") Number of poems: 
+              =authorStats[1].score
+          div.spacer
+          li= authorStats[2].author.fullName
+            a(href="/authors/#{authorStats[2].author.username}")  Visit Author Page
+            span(class="label label-info sp") Number of poems: 
+              =authorStats[2].score
+          div.spacer

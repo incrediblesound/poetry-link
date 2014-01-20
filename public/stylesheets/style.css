@@ -67,7 +67,7 @@ div {
 .spacer {
 	margin-bottom: 24px;
 }
-#linkInfo {
+#linkInfo, .linkbud {
 	cursor: pointer;
 }
 
@@ -77,4 +77,8 @@ div {
 
 .linkbud, .linkinfo, a {
 	display: inline;
+}
+
+.sp {
+	margin-left: 8px;
 }

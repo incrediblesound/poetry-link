@@ -5,7 +5,9 @@ block content
     div(class="navbar navbar-default navbar-fixed-top")
         ul(class="nav navbar-nav")
           li
-            a(href="/home") HOME
+            a(href="/home") Home
+          li
+            a(href="/manage") Manage Poems
         ul(class="nav navbar-nav navbar-right")
           li
             a(href="/logout") Log Out
@@ -16,7 +18,7 @@ block content
       div.col-md-4
         h3 
           span(class="label label-default") Poems in your library:
-          div
+          div.spacer
           div#poemlist
             - for(i=0;i<poems.length;i++)
               a(href='poems/#{poems[i]._id}')

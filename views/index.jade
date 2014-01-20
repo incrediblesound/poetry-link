@@ -12,6 +12,8 @@ block content
           li
             a(href = '/register') Join the fun!
           li
+            a(href = '/stats') Rankings
+          li
             a(href = '/logout') Log Out
         form(method='post' class="navbar-form navbar-right" action='/login')
           div.form-group
@@ -28,13 +30,13 @@ block content
             input(type='text' class='form-control' name='searchQuery')
           input(type='submit' class='btn btn-default' value='search')
       div.col-md-4
-        h2 Recent Poems
+        h2 Poems
         - each poem in poems
           a(href='/poems/#{poem._id}') 
             = poem.title
             <br>
       div.col-md-4
-        h2 Featured Authors
+        h2 Authors
         - each author in authors
           a(href='/authors/#{author.username}')
             = author.fullName

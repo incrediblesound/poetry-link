@@ -8,9 +8,9 @@ block content
             a(href="/home") HOME
     div.row
     div.center-block 
-      h1 Welcome New Author!
+      h1 Welcome New Author
     div.row
-    div.col-md-8
+    div.col-md-4
       form(method='post', action='/newauthor')
         div.form-group
           label(for="name") Full name:
@@ -25,8 +25,11 @@ block content
           label(for="favorites") Favorite poets:
           input(type='text' id="favorites" name='favorites')
           p.help-block Separated by commas, no spaces
+        div.spacer
         div.form-group
           label(for='bio') Short bio:
           textarea(id='bio' name='bio')
         div#addPoem
           input(type='submit', class='newauthor', value='save') 
+        h2
+          span(class="label label-danger") Read the about page before saving any poems!

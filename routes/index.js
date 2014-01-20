@@ -16,9 +16,54 @@ exports.about = function(req, res) {
   res.render('about');
 }
 
+exports.manage = function(req, res) {
+  poem.find({_id: {$in: req.user.poems}}, 
+    function (err, poems, count) {
+      res.render('manage', {
+        author: req.user,
+        poems: poems
+    });
+  })
+}
+
+exports.Delete = function(req, res) {
+  var author = req.user
+  var checked = req.body.poemselect;
+  console.log(checked);
+  poem.remove({_id: checked},
+    function (err, count, raw) {
+      console.log(err);
+      lineLink.remove({guestID: checked},
+        function (err, count, raw) {
+          console.log(err)
+          Author.update({_id: req.user._id}, { $pull: { poems: checked } },
+            function (err, data) {
+              console.log(err, data);
+              res.redirect('/manage');
+          })
+      })
+  })
+}
+
+exports.stats = function(req, res) {
+  poem.find( function (err, poems, count) {
+    Author.find( function (err, authors, count2) {
+      //console.log(authors)
+      var poemStats = mostLinkedPoems( poems );
+      var authorStats = mostProductiveAuthor( authors );
+      //console.log(poemStats);
+      //console.log(authorStats);
+      res.render('stats', {
+        poemStats: poemStats,
+        authorStats: authorStats
+      })
+    })
+  })
+}
+
 exports.index = function(req, res) {
-  poem.find( function(err, poems, count){
-	Author.find( function (err, authors, count){
+  poem.find( function(err, poems, count) {
+	Author.find( function (err, authors, count) {
 	  res.render('index', { 
   	    title: 'Poetry Link',
         user: req.user,
@@ -163,8 +208,9 @@ exports.linker = function (req,res) {
   var author = req.body.author;
   var lineContent = Body[Line];
   var position = req.body.position;
-  var originID = req.body.ID
-  poem.update({_id: originID}, {$push: {linkedLines: Line }});
+  var originID = req.body.ID;
+  poem.update({_id: originID}, {$push: {linkedLines: Line }}, 
+    function (err,count,raw) {return;});
   new lineLink({
     originID: originID,
     originTitle: title,
@@ -244,21 +290,63 @@ var match = function ( string, array ) {
   return results;
 };
 
-//find the three lines with the most links
-var topThreeLines = function(){
-var lines = line.find(function (err, lines) { return lines; })
-  var L = 0;
-  var one;
-  var two;
-  var three;
-  for(i=0;i<lines.length;i++) {
-    if(lines[i].links.length > L) {
-      L = lines[i].links.length;
-      two = one;
-      three = two;
-      one = lines[i]._id; 
-    }
-  }
-  return ({one: one, two: two, three: three});
+var change = function(array, a, b) {
+  array[a].poem = array[b].poem;
+  array[a].score = array[b].score;
+  return;
 }
-//callbacks can be nested indifiniely such that the res.render method has access to all the variables hoobly!!!
+
+//find the three poems with the most links
+var mostLinkedPoems = function(poems) {
+  var results = [
+  {poem: null, score: 0},
+  {poem: null, score: 0},
+  {poem: null, score: 0}
+  ];
+
+  for(i=0;i<poems.length;i++) {
+    if(poems[i].linkedLines.length > results[0].score) {
+      change(results, 2, 1);
+      change(results, 1, 0);
+      results[0].poem = poems[i];
+      results[0].score = poems[i].linkedLines.length;
+    }
+    else if (poems[i].linkedLines.length > results[1].score || poems[i].linkedLines.length === results[0].score) {
+      change(results, 2, 1);
+      results[1].poem = poems[i];
+      results[1].score = poems[i].linkedLines.length;
+    }
+    else if (poems[i].linkedLines.length > results[2].score || poems[i].linkedLines.length === results[1].score) {
+      results[2].poem = poems[i];
+      results[2].score = poems[i].linkedLines.length;
+    }
+  } 
+  return results;
+}
+
+var mostProductiveAuthor = function(authors) {
+  var results = [
+  {author: null, score: 0},
+  {author: null, score: 0},
+  {author: null, score: 0}
+  ];
+
+  for(i=0;i<authors.length;i++) {
+    if(authors[i].poems.length > results[0].score) {
+      change(results, 2, 1);
+      change(results, 1, 0);
+      results[0].author = authors[i];
+      results[0].score = authors[i].poems.length;
+    }
+    else if (authors[i].poems.length > results[1].score || authors[i].poems.length === results[0].score) {
+      change(results, 2, 1);
+      results[1].author = authors[i];
+      results[1].score = authors[i].poems.length;
+    }
+    else if (authors[i].poems.length > results[2].score || authors[i].poems.length === results[1].score) {
+      results[2].author = authors[i];
+      results[2].score = authors[i].poems.length;
+    }
+  } 
+  return results;
+}

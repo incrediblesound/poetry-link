@@ -28,7 +28,7 @@ block content
                 a(href="/poems/#{link.originID}") #{link.originTitle} by #{link.originAuthor}
         p= poem.content[i]
           - if((k+1)%5 === 0)
-            span.badge(id="lineCounter")= i+1
+            span.badge(style="margin-left:8px;" id="lineCounter")= i+1
           - k += 1
           - if(links !== null)
             - if(links.originNum === i)
