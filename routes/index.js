@@ -27,22 +27,19 @@ exports.manage = function(req, res) {
 }
 
 exports.Delete = function(req, res) {
-  var author = req.user
   var checked = req.body.poemselect;
-  console.log(checked);
   poem.remove({_id: checked},
     function (err, count, raw) {
       console.log(err);
       lineLink.remove({guestID: checked},
         function (err, count, raw) {
-          console.log(err)
-          Author.update({_id: req.user._id}, { $pull: { poems: checked } },
-            function (err, data) {
-              console.log(err, data);
-              res.redirect('/manage');
-          })
-      })
-  })
+          console.log(err);
+          console.log(checked);
+          Author.update({_id: req.user._id}, {$pull: { poems: checked }}, function (err, data) {
+            res.redirect('/manage');
+        })    
+      });
+    })
 }
 
 exports.stats = function(req, res) {
@@ -62,7 +59,8 @@ exports.stats = function(req, res) {
 }
 
 exports.index = function(req, res) {
-  poem.find( function(err, poems, count) {
+  poem.find().sort({created:1}).limit(15, function(err, poems, count) {
+    console.log(err);
 	Author.find( function (err, authors, count) {
 	  res.render('index', { 
   	    title: 'Poetry Link',
