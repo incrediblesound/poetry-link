@@ -24,18 +24,18 @@ block content
               a(href='poems/#{poems[i]._id}')
                 = poems[i].title
                 <br>
-      div.col-md-8          
+      div.col-md-4
         h3 
           span(class="label label-primary") Write something new!
         form(method='post', action='/create')
           div.form-group
             label(for="title") Title:
-            input(type='text' id='title' name='poemTitle' required)
+            input(type='text' class='form-control' name='poemTitle' required)
           div.form-group
             label(for='tags') Tags:
-            input(type='text' id='tags' name='Tags')
+            input(type='text' class='form-control' name='Tags')
           div.form-group
             label(for='poem') Poem:
-            textarea(name='poemtext' id='poem' required)
+            textarea(name='poemtext' class='form-control' required)
             div#addPoem
             button(type='submit' class="btn btn-default") SAVE

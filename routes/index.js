@@ -30,16 +30,14 @@ exports.Delete = function(req, res) {
   var checked = req.body.poemselect;
   poem.remove({_id: checked},
     function (err, count, raw) {
-      console.log(err);
       lineLink.remove({guestID: checked},
         function (err, count, raw) {
-          console.log(err);
-          console.log(checked);
-          Author.update({_id: req.user._id}, {$pull: { poems: checked }}, function (err, data) {
-            res.redirect('/manage');
+            var check = inside(checked, req.user.poems);
+            Author.update({_id: req.user._id}, {$pull: {poems: check}}).exec(function (err, data) {
+            res.redirect('/manage')
+          })
         })    
       });
-    })
 }
 
 exports.stats = function(req, res) {
@@ -59,9 +57,8 @@ exports.stats = function(req, res) {
 }
 
 exports.index = function(req, res) {
-  poem.find().sort({created:1}).limit(15, function(err, poems, count) {
-    console.log(err);
-	Author.find( function (err, authors, count) {
+  poem.find().sort({created:1}).limit(15).exec( function (err, poems, count) {
+	Author.find().sort({created:1}).limit(15).exec( function (err, authors, count) {
 	  res.render('index', { 
   	    title: 'Poetry Link',
         user: req.user,
@@ -81,7 +78,7 @@ exports.postRegister = function(req, res) {
     fullName: req.body.authorName,
     username: req.body.userName,
     password: req.body.password,
-    favAuthors: req.body.favorites.split(","),
+    favAuthors: req.body.favorites.split(", "),
     joined: Date.now(),
     bio: req.body.bio
   }).save(function (err, user) {
@@ -158,7 +155,7 @@ exports.create = function ( req, res ) {
 		title : req.body.poemTitle,
     content : lines,
 		created : Date.now(),
-    tags : req.body.Tags.split(","),
+    tags : req.body.Tags.split(", "),
 		}).save(function (err, thispoem, count) {
         req.user.update({$push: {poems: thispoem._id}}, 
           function(err, count, raw) {
@@ -226,29 +223,35 @@ exports.linker = function (req,res) {
 
 //search engine functions
 exports.search = function ( req, res ) {
-  poem.find( function (err, poems){
+  poem.find( function (err, poems) {
     var i;
     var k;
     var titles = [];
     var results = [];
-    for(i=0;i<poems.length;i++){
-      titles.push(poems[i].title);
-    }
-    var query = req.body.searchQuery.toLowerCase();
-    var matches = match(query, titles);
-    for(i=0;i<matches.length;i++){
-      for(k=0;k<poems.length;k++){
-        if(poems[k].title === matches[i]){
+    var tagresults = [];
+    var query = req.body.searchQuery.split(" ");
+    for(i=0;i<query.length;i++) {
+      for(k=0;k<poems.length;k++) {
+        if(match(query[i].toLowerCase(), poems[k].title) || tagcheck(query[i].toLowerCase(),poems[k])) {
           results.push(poems[k]);
-        }
+        }        
       }
-    };
+    }
   res.render('results', {
     title: 'Poetry Link',
-    poems: results
+    poems: results,
     })
   });
 }
+
+var tagcheck = function(query, poem) {
+  var t;
+  for(t=0;t<poem.tags.length;t++) {
+    if(check(query,poem.tags[t].toLowerCase())) {
+      return true;
+    }
+  }
+};
 
 var check = function( quer, title ) {
   var x = 0;
@@ -265,28 +268,23 @@ var check = function( quer, title ) {
   }
 };
 
-var match = function ( string, array ) {
-  var i;
+var match = function ( string, title ) {
   var k;
   var results = [];
-  for(i=0;i < array.length; i++) {
-    var current = array[i].split(" ");
-    if( current.length > 1 ) {       
-      for(k=0;k<current.length;k++) {
-        if(check( string, current[k].toLowerCase())) {
-          results.push( array[i] ); 
-          break; 
+  var current = title.split(" ");
+    if(current.length > 1 ) {       
+      for(k=0; k < current.length; k++) {
+        if( check( string, current[k].toLowerCase() ) ) {
+          return true;
         }    
       }
-    }   
-    else {
-      if(check( string, array[i].toLowerCase() )) {
-        results.push(array[i]);
-      }
-    }
+    } 
+    else if (check( string, current[0].toLowerCase() )) {
+        return true;
+      } else {
+  return false;
   }
-  return results;
-};
+}
 
 var change = function(array, a, b) {
   array[a].poem = array[b].poem;
@@ -347,4 +345,18 @@ var mostProductiveAuthor = function(authors) {
     }
   } 
   return results;
+}
+
+var inside = function(string, array) {
+  for(i=0;i<array.length;i++) {
+    if(array[i] == string) {
+      return array[i]
+    }
+  }
+}
+
+var forEach = function(array, fn) {
+  for(i=0;i<array.length;i++) {
+    fn(array[i]);
+  }
 }

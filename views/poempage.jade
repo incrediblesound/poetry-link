@@ -14,7 +14,8 @@ block content
     div.col-md-8
       h2= poem.title
       span(class="label label-info")<strong>Written by: </strong>
-        = poem.author
+        a(href="/authors/#{poem.authorUsr}")= poem.author
+
       div.spacer
       - var i;
       - var l;
