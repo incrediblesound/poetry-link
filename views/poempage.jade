@@ -35,17 +35,17 @@ block content
             - if(links.originNum === i)
               span(class="label label-info linkbud") L
                 span(class="label label-info linkinfo") 
-                  | this line used
+                  | this line used in
                   a(href="/poems/#{links.guestID}")
-                    | in #{links.guestTitle} by #{links.guestAuthor}
+                    | #{links.guestTitle} by #{links.guestAuthor}
             - if(links.length > 0)
               - for(l=0;l<links.length;l++)
                 - if(links[l].originNum === i)
                   span(class="label label-info linkbud") L
                     span(class="label label-info linkinfo") 
-                      | this line used
+                      | this line used in
                       a(href="/poems/#{links[l].guestID}")
-                        | in #{links[l].guestTitle} by #{links[l].guestAuthor}
+                        | #{links[l].guestTitle} by #{links[l].guestAuthor}
       - if(poem.linkPosition === 'last')
         p= link.content
           - if((k+1)%5 === 0)
@@ -77,9 +77,6 @@ block content
           label(for="position2") Closing line:
           input(type='radio' class='position' id="position2" name='position' value='last')
         div.form-group
-          input(type='hidden' name='content' value='#{poem.content}')
-          input(type='hidden' name='title' value='#{poem.title}')
-          input(type='hidden' name='author' value='#{poem.author}')
           input(type='hidden' name='ID' value='#{poem._id}')
           input(type='hidden' name='linkID' value='#{poem.linkID}')
           input(type='hidden' name='linkPosition' value='#{poem.linkPosition}')

@@ -25,7 +25,7 @@ var LineLink = new Schema({
 	content: String,
 	guestAuthor: String,
 	guestTitle: String,
-	guestID: String
+	guestID: {type: String, default: null}
 })
 
 var lineLink = mongoose.model('lineLink', LineLink);
@@ -42,4 +42,17 @@ var Author = new Schema({
 
 var Author = mongoose.model('Author', Author);
 
-mongoose.connect('mongodb://localhost/poetry');
+var News = new Schema({
+	originID: String,
+	newpoemID: String,
+	origintitle: String,
+	newtitle: String,
+	originauthor: String,
+	newauthor: String,
+	datetime: Date
+})
+
+var news = mongoose.model('news', News);
+
+//mongoose.connect('mongodb://localhost/poetry')
+mongoose.connect('mongodb://nodejitsu:b46129259f46a910f907955e9619f7da@troup.mongohq.com:10065/nodejitsudb6359946045/poetrylink')

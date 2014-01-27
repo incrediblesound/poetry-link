@@ -15,7 +15,7 @@ block content
       form(method='post', action='/savelink')
         div.form-group
           label(for="title") Title:
-          input(type='text', id='title', name='poemTitle')
+          input(type='text', id='title', name='poemTitle' required)
         div.form-group
           label(for="tags") Tags:
           input(type='text', id='tags', name='Tags')
@@ -25,4 +25,5 @@ block content
           input(type='hidden' name='line' value='#{linelink.content}')
           input(type='hidden' name='position' value='#{position}')
           input(type='hidden' name='ID' value='#{linelink._id}')
+          input(type='hidden' name='newsID' value='#{news._id}')
           input(type='submit', class="btn btn-default" value='SAVE')

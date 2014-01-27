@@ -7,6 +7,7 @@
  var lineLink = mongoose.model ( 'lineLink' );
  var Author = mongoose.model ('Author' );
  var passport = require( 'passport' );
+ var news = mongoose.model( 'news' );
 
 exports.title = function(req, res) {
   res.render('title');
@@ -57,14 +58,16 @@ exports.stats = function(req, res) {
 }
 
 exports.index = function(req, res) {
-  poem.find().sort({created:1}).limit(15).exec( function (err, poems, count) {
-	Author.find().sort({created:1}).limit(15).exec( function (err, authors, count) {
-	  res.render('index', { 
-  	    title: 'Poetry Link',
-        user: req.user,
-  	    poems: poems,
-  	    authors: authors 
-    });
+  poem.find().sort({created:-1}).limit(15).exec( function (err, poems, count) {
+	Author.find().sort({joined:-1}).limit(15).exec( function (err, authors, count) {
+    lineLink.remove({guestID: null}, function (err, data) {
+	   res.render('index', { 
+  	     title: 'Poetry Link',
+          user: req.user,
+  	     poems: poems,
+  	     authors: authors 
+      })
+    })
   });
 });
 }
@@ -99,15 +102,17 @@ exports.desk = function(req, res){
   if(req.user === undefined) {
     res.redirect('/register');
   } else {
-  Author.findOne({username: req.user.username}, function(err, author, count){
+  Author.findOne({username: req.user.username}, function (err, author, count) {
     var usrPoems = author.poems;
-    console.log(usrPoems);
-    poem.find({_id: { $in: usrPoems } }, function(err, poems, count){
-      res.render('desk', {
-        user: req.user,
-        author: author,
-        poems: poems
-      });
+    poem.find({_id: { $in: usrPoems } }, function (err, poems, count) {
+      news.find({originID: { $in: usrPoems}}).sort({datetime:-1}).limit(10).exec(function (err, news, count) {
+        res.render('desk', {
+          user: req.user,
+          author: author,
+          poems: poems,
+          news: news
+        })
+      })
     })
   })
 }
@@ -120,6 +125,7 @@ exports.authors = function( req, res ) {
     poem.find({_id: { $in: usrPoems } }, function(err, poems, count) {
       res.render('authorpage', {
         author: author,
+        favs: author.favAuthors,
         poems: poems
       })
     })
@@ -129,11 +135,10 @@ exports.authors = function( req, res ) {
 //this is the page for displaying a single poem
 exports.poems = function( req, res ) {
   poem.findOne({_id: req.params.id}, 
-    function(err, poem, count) {
+    function (err, poem, count) {
       lineLink.findOne({ _id:poem.linkID }, 
-        function(err, linkOne, count) {
+        function (err, linkOne, count) {
             lineLink.find({originID: poem._id}, function(err, links, count) {
-              console.log(links);
               res.render('poempage', {
                 poem: poem,
                 link: linkOne,
@@ -168,7 +173,8 @@ exports.create = function ( req, res ) {
 exports.savelink = function (req, res) { //this saves a new poem written with a line from another poem
   var lines = req.body.poemtext.split('\r\n'); //make array out of user written (new) poem
   var position = req.body.position; //save the position of the user borrowed line
-  var ID = req.body.ID
+  var ID = req.body.ID;
+  var newsID = req.body.newsID;
   new poem({
     author : req.user.fullName,       
     authorUsr : req.user.username,
@@ -181,6 +187,8 @@ exports.savelink = function (req, res) { //this saves a new poem written with a 
   }).save(function (err, thispoem, count) {
       lineLink.update({_id: thispoem.linkID}, {guestID: thispoem._id, guestAuthor: thispoem.author, guestTitle: thispoem.title },
         function(err,count,raw){return;})
+      news.update({_id: newsID}, {newpoemID: thispoem._id, newtitle: thispoem.title, newauthor: thispoem.author},
+        function(err, data){return;})
       req.user.update({$push: {poems: thispoem._id}}, //update user document with _id of new poem 
         function(err, count, raw) {
           res.redirect('desk'); // go home bitch!!!
@@ -197,27 +205,37 @@ exports.linker = function (req,res) {
   if(req.user === undefined) {
     res.redirect('/register');
   } else {
-  var Line = req.body.lineselect-1;
-  var Body = req.body.content.split(',');
-  var title = req.body.title;
-  var author = req.body.author;
-  var lineContent = Body[Line];
-  var position = req.body.position;
   var originID = req.body.ID;
+  var Line = req.body.lineselect-1;
   poem.update({_id: originID}, {$push: {linkedLines: Line }}, 
     function (err,count,raw) {return;});
+  poem.findOne({_id: originID}).exec(function (err, origin) { 
+  var poemlength = req.body.num;
+  var i;
+  var Body = origin.content;
+  var lineContent = Body[Line];
+  var position = req.body.position;
   new lineLink({
     originID: originID,
-    originTitle: title,
-    originAuthor: author,
+    originTitle: origin.title,
+    originAuthor: origin.author,
     originNum: Line,
     content: lineContent
   }).save(function(err, linelink, count) {
-    res.render('newlink', {
-      linelink: linelink,
-      position: position
+    new news({
+      originID: originID,
+      origintitle: origin.title,
+      originauthor: origin.author,
+      datetime: Date.now()
+    }).save(function(err, news, count) {
+      res.render('newlink', {
+        linelink: linelink,
+        news: news,
+        position: position
+      })
     })
   })
+})
 }
 };
 
@@ -233,7 +251,9 @@ exports.search = function ( req, res ) {
     for(i=0;i<query.length;i++) {
       for(k=0;k<poems.length;k++) {
         if(match(query[i].toLowerCase(), poems[k].title) || tagcheck(query[i].toLowerCase(),poems[k])) {
-          results.push(poems[k]);
+          if(!inArray(poems[k],results)) {
+            results.push(poems[k]);
+          }
         }        
       }
     }
@@ -292,6 +312,12 @@ var change = function(array, a, b) {
   return;
 }
 
+var Change = function(array, a, b) {
+  array[a].author = array[b].author;
+  array[a].score = array[b].score;
+  return;
+}
+
 //find the three poems with the most links
 var mostLinkedPoems = function(poems) {
   var results = [
@@ -321,30 +347,29 @@ var mostLinkedPoems = function(poems) {
 }
 
 var mostProductiveAuthor = function(authors) {
-  var results = [
+  var Results = [
   {author: null, score: 0},
   {author: null, score: 0},
   {author: null, score: 0}
   ];
-
   for(i=0;i<authors.length;i++) {
-    if(authors[i].poems.length > results[0].score) {
-      change(results, 2, 1);
-      change(results, 1, 0);
-      results[0].author = authors[i];
-      results[0].score = authors[i].poems.length;
+    if(authors[i].poems.length > Results[0].score) {
+      Change(Results, 2, 1);
+      Change(Results, 1, 0);
+      Results[0].author = authors[i];
+      Results[0].score = authors[i].poems.length;
     }
-    else if (authors[i].poems.length > results[1].score || authors[i].poems.length === results[0].score) {
-      change(results, 2, 1);
-      results[1].author = authors[i];
-      results[1].score = authors[i].poems.length;
+    else if (authors[i].poems.length > Results[1].score || authors[i].poems.length === Results[0].score) {
+      Change(Results, 2, 1);
+      Results[1].author = authors[i];
+      Results[1].score = authors[i].poems.length;
     }
-    else if (authors[i].poems.length > results[2].score || authors[i].poems.length === results[1].score) {
-      results[2].author = authors[i];
-      results[2].score = authors[i].poems.length;
+    else if (authors[i].poems.length > Results[2].score || authors[i].poems.length === Results[1].score) {
+      Results[2].author = authors[i];
+      Results[2].score = authors[i].poems.length;
     }
   } 
-  return results;
+  return Results;
 }
 
 var inside = function(string, array) {
@@ -354,6 +379,16 @@ var inside = function(string, array) {
     }
   }
 }
+
+var inArray = function(object, array) {
+  var i;
+  for(i=0;i<array.length;i++) {
+    if(object === array[i]) {
+      return true;
+    }
+  }
+  return false
+};
 
 var forEach = function(array, fn) {
   for(i=0;i<array.length;i++) {

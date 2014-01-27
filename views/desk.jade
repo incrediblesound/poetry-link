@@ -14,19 +14,10 @@ block content
     div.row
       div.col-md-12
         h2= user.fullName
-    div.row
-      div.col-md-4
-        h3 
-          span(class="label label-default") Poems in your library:
-          div.spacer
-          div#poemlist
-            - for(i=0;i<poems.length;i++)
-              a(href='poems/#{poems[i]._id}')
-                = poems[i].title
-                <br>
       div.col-md-4
         h3 
           span(class="label label-primary") Write something new!
+        div.spacer
         form(method='post', action='/create')
           div.form-group
             label(for="title") Title:
@@ -39,3 +30,19 @@ block content
             textarea(name='poemtext' class='form-control' required)
             div#addPoem
             button(type='submit' class="btn btn-default") SAVE
+      div.col-md-4
+        h3 
+          span(class="label label-info") Poems in your library:
+          div.spacer
+          div#poemlist
+            - for(i=0;i<poems.length;i++)
+              a(href='poems/#{poems[i]._id}')
+                = poems[i].title
+                <br>
+      div.col-md-4
+        h3
+          span(class="label label-default") News for your poems:
+        div.spacer
+        - each item in news
+          p <strong>#{item.newauthor}</strong> wrote a poem "#{item.newtitle}" with a line from "#{item.origintitle}"
+            a(href='/poems/#{item.newpoemID}' class='label label-info' style="margin-left:8px;") take a look
