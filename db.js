@@ -44,7 +44,7 @@ var Author = mongoose.model('Author', Author);
 
 var News = new Schema({
 	originID: String,
-	newpoemID: String,
+	newpoemID: {type: String, default: null},
 	origintitle: String,
 	newtitle: String,
 	originauthor: String,

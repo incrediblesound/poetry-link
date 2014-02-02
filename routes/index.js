@@ -61,16 +61,18 @@ exports.index = function(req, res) {
   poem.find().sort({created:-1}).limit(15).exec( function (err, poems, count) {
 	Author.find().sort({joined:-1}).limit(15).exec( function (err, authors, count) {
     lineLink.remove({guestID: null}, function (err, data) {
-	   res.render('index', { 
-  	     title: 'Poetry Link',
+      news.remove({newpoemID: null}, function (err, data) {
+	      res.render('index', { 
+          title: 'Poetry Link',
           user: req.user,
-  	     poems: poems,
-  	     authors: authors 
+          poems: poems,
+          authors: authors 
+        })
       })
     })
-  });
-});
-}
+  })
+})
+};
 
 exports.register = function(req, res) {
   res.render('register', {});
@@ -153,7 +155,6 @@ exports.poems = function( req, res ) {
 
 exports.create = function ( req, res ) {
   var lines = req.body.poemtext.split('\r\n');
-  console.log(lines);
 	new poem({
 		author : req.user.fullName,
     authorUsr : req.user.username,
@@ -185,13 +186,18 @@ exports.savelink = function (req, res) { //this saves a new poem written with a 
     linkID : ID,
     linkPosition : position
   }).save(function (err, thispoem, count) {
-      lineLink.update({_id: thispoem.linkID}, {guestID: thispoem._id, guestAuthor: thispoem.author, guestTitle: thispoem.title },
-        function(err,count,raw){return;})
-      news.update({_id: newsID}, {newpoemID: thispoem._id, newtitle: thispoem.title, newauthor: thispoem.author},
-        function(err, data){return;})
-      req.user.update({$push: {poems: thispoem._id}}, //update user document with _id of new poem 
-        function(err, count, raw) {
-          res.redirect('desk'); // go home bitch!!!
+      lineLink.findOneAndUpdate({_id: thispoem.linkID}, {guestID: thispoem._id, guestAuthor: thispoem.author, guestTitle: thispoem.title },
+        function (err, link) {
+        news.findOneAndUpdate({_id: newsID}, {newpoemID: thispoem._id, newtitle: thispoem.title, newauthor: thispoem.author},
+          function (err, doc) {
+            poem.findOneAndUpdate({_id: link.originID}, {$push: {linkedLines: link.originNum}}, 
+              function (err, poem) {
+                req.user.update({$push: {poems: thispoem._id}}, //update user document with _id of new poem 
+                  function(err, count, raw) {
+                  res.redirect('desk');
+              })
+            })
+        })
       })
     })
 };
@@ -207,12 +213,9 @@ exports.linker = function (req,res) {
   } else {
   var originID = req.body.ID;
   var Line = req.body.lineselect-1;
-  poem.update({_id: originID}, {$push: {linkedLines: Line }}, 
-    function (err,count,raw) {return;});
   poem.findOne({_id: originID}).exec(function (err, origin) { 
   var poemlength = req.body.num;
-  var i;
-  var Body = origin.content;
+  var Body = noGaps(origin.content);
   var lineContent = Body[Line];
   var position = req.body.position;
   new lineLink({
@@ -395,3 +398,13 @@ var forEach = function(array, fn) {
     fn(array[i]);
   }
 }
+
+var noGaps = function(array) {
+  var results = [];
+  for(var p = 0;p<array.length;++p) {
+    if(array[p] !== "") {
+      results.push(array[p]);
+    }
+  }
+  return results;
+};

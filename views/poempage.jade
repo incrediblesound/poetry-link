@@ -18,8 +18,9 @@ block content
 
       div.spacer
       - var i;
-      - var l;
       - var k = 0;
+      - var u = 0;
+
       - for(i=0;i<poem.content.length;i++)
         - if(poem.linkPosition === 'first' && i === 0)
           - k += 1
@@ -27,29 +28,26 @@ block content
             span(class="label label-info linkbud") L
               span(class="label label-info linkinfo") this line linked from 
                 a(href="/poems/#{link.originID}") #{link.originTitle} by #{link.originAuthor}
-        p= poem.content[i]
-          - if((k+1)%5 === 0)
-            span.badge(style="margin-left:8px;" id="lineCounter")= i+1
-          - k += 1
-          - if(links !== null)
-            - if(links.originNum === i)
-              span(class="label label-info linkbud") L
-                span(class="label label-info linkinfo") 
-                  | this line used in
-                  a(href="/poems/#{links.guestID}")
-                    | #{links.guestTitle} by #{links.guestAuthor}
+        - if(poem.content[i].length === 0)
+          br
+        - if(poem.content[i].length > 0)
+          p= poem.content[i]
+            - if((k+1)%5 === 0)
+              span.badge(style="margin-left:8px;" id="lineCounter")= k+1
             - if(links.length > 0)
-              - for(l=0;l<links.length;l++)
-                - if(links[l].originNum === i)
+              - for(var l=0;l<links.length;l++)
+                - if(links[l].originNum === u)
                   span(class="label label-info linkbud") L
                     span(class="label label-info linkinfo") 
                       | this line used in
                       a(href="/poems/#{links[l].guestID}")
                         | #{links[l].guestTitle} by #{links[l].guestAuthor}
+            - k += 1
+            - u += 1
       - if(poem.linkPosition === 'last')
         p= link.content
           - if((k+1)%5 === 0)
-            span.badge(style="margin-left:8px;")= i+1
+            span.badge(style="margin-left:8px;")= k+1
           span(class="label label-info linkbud") L
               span(class="label label-info linkinfo") this line linked from 
                 a(href="/poems/#{link.originID}") #{link.originTitle} by #{link.originAuthor}
@@ -65,8 +63,7 @@ block content
         div.form-group
           label(for="line") Choose a line from this poem:
           select(name='lineselect' id="line")
-            -var body = poem.content
-            -for(i=0;i<body.length;i++)
+            -for(i=0;i<u;i++)
               option= i+1
         h4
           span(class="label label-info") Where will this line be in your poem?
