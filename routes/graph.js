@@ -1,43 +1,18 @@
-$(document).ready(function(){
+var makeGraph = function(data) {
 
-	$('.linkbud').hide();
-	$('.linkinfo').hide();
-
-	$('#linkInfo').on('click', function() {
-		$('.linkbud').toggle(500);
-	});
-
-	$('.linkbud').on('click', function() {
-		$(this).children().toggle(500);
-	})
-
-	$('#linksubmit').hide();
-	$('.position').on('click', function() {
-		$('#linksubmit').fadeIn(250);
-	});
-
-	$('.title').attr('href', '/index')
-
-	$('#graph').on('click', function() {
-		$.ajax({
-			type:'get',
-			url:'/data',
-			datatype:'json'
-		}).done (function (data) {
   links = data;
   var nodes = {};
 
-  for(i=0;i<links.length;++i) {
-    links[i].source = nodes[links[i].source] || (nodes[links[i].source] = {name: links[i].source});
-    links[i].target = nodes[links[i].target] || (nodes[links[i].target] = {name: links[i].target});
-  };
+  links.forEach(function (link) {
+    link.source = nodes[link.source] || (nodes[link.source] = {ID: link.source});
+    link.target = nodes[link.target] || (nodes[link.target] = {Child: link.target});
+  });
 
-  console.log(nodes);
   var width = 960,
       height = 500;
 
   var force = d3.layout.force()
-	.nodes(d3.values(nodes))
+	.nodes(this.ownerDocument.values(nodes))
 	.links(links)
   .size([width, height])
   .linkDistance(60)
@@ -82,8 +57,4 @@ $(document).ready(function(){
   function transform(d) {
     return "translate(" + d.x + "," + d.y + ")";
   }
-		})
-	})
-});
-
-
+}

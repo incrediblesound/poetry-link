@@ -54,5 +54,5 @@ var News = new Schema({
 
 var news = mongoose.model('news', News);
 
-//mongoose.connect('mongodb://localhost/poetry')
-mongoose.connect('mongodb://nodejitsu:b46129259f46a910f907955e9619f7da@troup.mongohq.com:10065/nodejitsudb6359946045/poetrylink')
+mongoose.connect('mongodb://localhost/poetry')
+//mongoose.connect('mongodb://nodejitsu:b46129259f46a910f907955e9619f7da@troup.mongohq.com:10065/nodejitsudb6359946045/poetrylink')

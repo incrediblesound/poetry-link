@@ -56,6 +56,19 @@ exports.stats = function(req, res) {
     })
   })
 }
+exports.Data = function(req,res) {
+  lineLink.find( function (err, links) {
+    var data = [];
+    forEach(links, function(link) {
+      data.push({source: link.originID, target: link.guestID})
+    })
+    res.end(JSON.stringify(data));
+  })
+};
+
+exports.graph = function(req, res) {
+    res.render('graph');
+};
 
 exports.index = function(req, res) {
   poem.find().sort({created:-1}).limit(15).exec( function (err, poems, count) {
@@ -394,9 +407,8 @@ var inArray = function(object, array) {
 };
 
 var forEach = function(array, fn) {
-  for(i=0;i<array.length;i++) {
+  for(i=0;i<array.length;i++)
     fn(array[i]);
-  }
 }
 
 var noGaps = function(array) {
