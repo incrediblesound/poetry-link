@@ -1,5 +1,4 @@
 $(document).ready(function(){
-
 	$('.linkbud').hide();
 	$('.linkinfo').hide();
 
@@ -24,15 +23,20 @@ $(document).ready(function(){
 			url:'/data',
 			datatype:'json'
 		}).done (function (data) {
-  links = data;
+  var links = JSON.parse(data);
   var nodes = {};
+  var names = {};
 
-  for(i=0;i<links.length;++i) {
-    links[i].source = nodes[links[i].source] || (nodes[links[i].source] = {name: links[i].source});
-    links[i].target = nodes[links[i].target] || (nodes[links[i].target] = {name: links[i].target});
-  };
+  links.forEach(function (link) {
+    names[link.source] = link.host;
+    names[link.target] = link.guest;
+  });
 
-  console.log(nodes);
+  links.forEach(function (link) {
+    link.source = nodes[link.source] || (nodes[link.source] = {ID: link.source});
+    link.target = nodes[link.target] || (nodes[link.target] = {ID: link.target});
+  });
+
   var width = 960,
       height = 500;
 
@@ -48,10 +52,24 @@ $(document).ready(function(){
     .attr("width", width)
     .attr("height", height);
 
-  var path = svg.append("g").selectAll("path")
+  svg.append("svg:defs").selectAll("marker")
+    .data(["end"])
+  .enter().append("svg:marker")    
+    .attr("id", String)
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 15)
+    .attr("refY", -1.5)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+  .append("svg:path")
+    .attr("d", "M0,-5L10,0L0,5");
+
+var path = svg.append("svg:g").selectAll("path")
     .data(force.links())
-  .enter().append("path")
-    .attr("class", function(d) { return "link"});
+  .enter().append("svg:path")
+    .attr("class", "link")
+    .attr("marker-end", "url(#end)");
 
   var circle = svg.append("g").selectAll("circle")
     .data(force.nodes())
@@ -64,7 +82,7 @@ $(document).ready(function(){
   .enter().append("text")
     .attr("x", 8)
     .attr("y", ".31em")
-    .text(function(d) { return d.source; });
+    .text(function(d) { return (names[d.ID]) });
 
   function tick() {
     path.attr("d", linkArc);
@@ -86,4 +104,7 @@ $(document).ready(function(){
 	})
 });
 
-
+var forEach = function(array, fn) {
+  for(i=0;i<array.length;i++)
+    fn(array[i]);
+}

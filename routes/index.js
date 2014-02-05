@@ -60,7 +60,7 @@ exports.Data = function(req,res) {
   lineLink.find( function (err, links) {
     var data = [];
     forEach(links, function(link) {
-      data.push({source: link.originID, target: link.guestID})
+      data.push({source: link.originID, target: link.guestID, host: link.originTitle, guest: link.guestTitle})
     })
     res.end(JSON.stringify(data));
   })
