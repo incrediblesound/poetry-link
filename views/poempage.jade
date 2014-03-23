@@ -24,14 +24,14 @@ block content
       - for(i=0;i<poem.content.length;i++)
         - if(poem.linkPosition === 'first' && i === 0)
           - k += 1
-          p= link.content
+          p.poem= link.content
             span(class="label label-info linkbud") L
               span(class="label label-info linkinfo") this line linked from 
                 a(href="/poems/#{link.originID}") #{link.originTitle} by #{link.originAuthor}
         - if(poem.content[i].length === 0)
           br
         - if(poem.content[i].length > 0)
-          p= poem.content[i]
+          p.poem= poem.content[i]
             - if((k+1)%5 === 0)
               span.badge(style="margin-left:8px;" id="lineCounter")= k+1
             - if(links.length > 0)
@@ -40,22 +40,25 @@ block content
                   span(class="label label-info linkbud") L
                     span(class="label label-info linkinfo") 
                       | this line used in
-                      a(href="/poems/#{links[l].guestID}")
-                        | #{links[l].guestTitle} by #{links[l].guestAuthor}
+                      a.sp(href="/poems/#{links[l].guestID}") 
+                        | #{links[l].guestTitle} by #{links[l].guestAuthor} 
             - k += 1
             - u += 1
       - if(poem.linkPosition === 'last')
-        p= link.content
+        p.poem= link.content
           - if((k+1)%5 === 0)
             span.badge(style="margin-left:8px;")= k+1
           span(class="label label-info linkbud") L
               span(class="label label-info linkinfo") this line linked from 
                 a(href="/poems/#{link.originID}") #{link.originTitle} by #{link.originAuthor}
       div.spacer
-      h4
-        span(class="label label-primary" id="linkInfo") Show Links
-          
+      button(class="btn btn-primary btn-md" id="linkInfo") Show Links
+      div.spacer
       
+      div.spacer
+      p
+        span(class='label label-warning marg') Hint 
+        | The 'show links' button will reveal 'L' boxes <br> for each line that is shared by another poem. <br> Click on an 'L' box to open up a link to the source <br> or destination of the line.  
     div.col-md-4      
       h2 
         span(class="label label-primary") Create a link
@@ -65,8 +68,8 @@ block content
           select(name='lineselect' id="line")
             -for(i=0;i<u;i++)
               option= i+1
-        h4
-          span(class="label label-info") Where will this line be in your poem?
+        p(class="label label-info pop") Where will this line be in your poem?
+        div.spacer
         div.form-group
           label(for="position1") Opening line:
           input(type='radio' class='position' id="position1" name='position' value='first')
@@ -78,6 +81,10 @@ block content
           input(type='hidden' name='linkID' value='#{poem.linkID}')
           input(type='hidden' name='linkPosition' value='#{poem.linkPosition}')
         input(type='submit' class="btn btn-default" id='linksubmit' value='BEGIN')
+      div.spacer
+      p(class="label label-danger" id="warning") Warning! 
+      div.spacer
+      p.warn The line selector only counts original lines. <br> If this poem has a link at the beginning, <br> selector number 1 is actually poem line 2. <br> Click "show links" to see borrowed lines.
 
 //  div.lnkheader
 //    p View Links

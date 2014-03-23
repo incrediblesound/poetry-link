@@ -3,6 +3,11 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+a:hover {
+	color: red;
+	text-decoration: none;
+}
+
 h1 {
 	padding-top: 4px;
 	padding-bottom: 4px;
@@ -83,6 +88,18 @@ div {
 	margin-left: 8px;
 }
 
+.pop {
+	font-size: 12pt;
+}
+.marg {
+	margin-right: 4px;
+	margin-bottom: 6px;
+}
+
+.poem {
+	font-family: times, serif;
+	font-size: 14pt;
+}
 path.link {
 	fill: none;
   stroke: #666;

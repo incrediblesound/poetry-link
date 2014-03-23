@@ -1,6 +1,8 @@
 $(document).ready(function(){
 	$('.linkbud').hide();
 	$('.linkinfo').hide();
+  $('#warning').hide();
+  $('.warn').hide();
 
 	$('#linkInfo').on('click', function() {
 		$('.linkbud').toggle(500);
@@ -12,7 +14,9 @@ $(document).ready(function(){
 
 	$('#linksubmit').hide();
 	$('.position').on('click', function() {
+    $('#warning').fadeIn(250);
 		$('#linksubmit').fadeIn(250);
+    $('.warn').fadeIn(250);
 	});
 
 	$('.title').attr('href', '/index')
